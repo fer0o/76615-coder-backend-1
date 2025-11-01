@@ -7,7 +7,12 @@ const app = express();
 app.use(express.json());
 
 // --- RUTAS BASE --- //
+const productsRouter = require ('./routes/products.routes')
+//const cartsRouter = require ('./routes/carts.routes')
 
+// Usar las rutas
+app.use('/api/products', productsRouter);
+//app.use('/api/carts', cartsRouter);
 
 // Ruta raíz temporal
 app.get('/', (req, res) => {
