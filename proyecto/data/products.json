@@ -5,21 +5,39 @@
       {
         "name": "España",
         "teams": [
-            {
-                "name": "FC Barcelona",
-                "league": "La Liga",
-                "products": [
-                    {
-                        "id": 1,
-                        "player": "Pedri",
-                        "season": "2024/25",
-                        "category": "Home",
-                        "price": 1700,
-                        "stock": 10,
-                        "size": ["S", "M", "L", "XL"]
-                    }
+          {
+            "name": "FC Barcelona",
+            "league": "La Liga",
+            "products": [
+              {
+                "id": 1,
+                "player": "Pedri",
+                "season": "2024/25",
+                "category": "Home",
+                "price": 1700,
+                "stock": 10,
+                "size": [
+                  "S",
+                  "M",
+                  "L",
+                  "XL"
                 ]
-            },  
+              },
+              {
+                "id": 2,
+                "player": "Gündogan",
+                "season": "2024/25",
+                "category": "Home",
+                "price": 2000,
+                "stock": 8,
+                "size": [
+                  "M",
+                  "L",
+                  "XL"
+                ]
+              }
+            ]
+          },
           {
             "name": "Real Madrid",
             "league": "La Liga",

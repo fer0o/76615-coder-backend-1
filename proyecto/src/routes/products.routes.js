@@ -34,4 +34,76 @@ router.get('/:pid', async (req, res)=>{
     }
 })
 
+//Ruta post para agregar un nuevo producto
+router.post('/', async (req, res) => {
+    try{
+        /* body para el post
+        {
+            "contient": "Europa",
+            "country": "España",
+            "team": "FC Barcelona",
+            "product": {
+                "player": "Lionel Messi",
+                "season": "2020/2021",
+                "category": "Home",
+                "price": 99.99,
+                "stock": 50,
+                "size": ["S", "M", "L", "XL"],
+            }
+        }
+        */
+        const {continent, country, team, product} = req.body;
+
+        //validamos que los datos necesarios esten presentes
+        if(!continent || !country || !team || !product){
+            return res.status(400).json({
+                error: 'Faltan datos. Debes enviar continent, country, team y product'
+            })
+        }
+        // Llamamos al métodos del manager para agregar el producto
+        const result = await productManager.addProduct({
+            continent,
+            country,
+            team,
+            product
+        })
+        //respondemos con 201 para el nuevo producto agregado
+        res.status(201).json(result)
+    }
+    catch(error){
+        console.error('Error en POST /api/products:', error.message);
+        //detectamos errores comunes y devolvemos codigos adecuados
+        if(error.message.includes('no encontrado')){
+            return res.status(404).json({error: error.message})
+        }
+        res.status(500).json({error: 'Error al agregar el producto'})
+    }
+})
+
+//ruta para actualizar un producto existente PUT
+router.put('/:pid', async (req, res) =>{
+    try{
+        const pid = parseInt (req.params.pid)
+        const updateFields = req.body //campos a actualizar
+
+        //validamos que almenos hay un campo para actualizar
+        if (Object.keys(updateFields).length === 0){
+            return res.status(400).json({error: 'No se enviaron campos para actualizar'})
+        }
+
+        const result = await productManager.updateProduct(pid, updateFields)
+
+        res.status(200).json(result)
+    }
+    catch(error){
+        console.error('Error en PUT /api/products/:pid:', error.message)
+
+        if(error.message.includes('no encontrado')){
+            return res.status(404).json({error: error.message})
+        }
+        res.status(500).json({error: 'Error interno del servidor'})
+   }
+})
+
+
 module.exports = router;
