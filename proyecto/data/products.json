@@ -27,13 +27,12 @@
                 "id": 2,
                 "player": "Gündogan",
                 "season": "2024/25",
-                "category": "Home",
-                "price": 2000,
-                "stock": 8,
+                "category": "Third",
+                "price": 1750,
+                "stock": 5,
                 "size": [
                   "M",
-                  "L",
-                  "XL"
+                  "L"
                 ]
               }
             ]
