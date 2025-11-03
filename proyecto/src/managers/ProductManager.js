@@ -19,188 +19,108 @@ class ProductManager {
     }
   }
   //metodo. para obtener producto por su ID
-  async getProductsById(pid) {
-    try {
-      const data = await this.getProducts();
+async getProductById(pid) {
+  try {
+    const data = await this.getProducts();
 
-      //recorremos continentes
-      for (const continent of data) {
-        //recorremos paises
-        for (const country of continent.countries) {
-          //recorremoos los equipos
-          for (const team of country.teams) {
-            //buscamos el producto dentro de ese equipo
-            const product = team.products.find((p) => p.id === pid);
-            if (product) {
-              //si lo encontramos lo retornamos con la info del equipo, pais y continente
-              return {
-                continent: continent.continent,
-                country: country.name,
-                team: team.name,
-                ...product,
-              };
-            }
-          }
-        }
-      }
-      //si no lo encontramos retornamos null
+    // Buscamos directamente el producto en el array principal
+    const product = data.find((p) => p.id === pid);
+
+    // Si no existe, devolvemos null
+    if (!product) {
       return null;
-    } catch (error) {
-      console.error("Error al obtener el producto por ID:", error);
-      throw error;
     }
+
+    // Si existe, devolvemos el objeto completo
+    return product;
+
+  } catch (error) {
+    console.error("Error al obtener el producto por ID:", error);
+    throw error;
   }
+}
 
   //metodo para agregar un nuevo producto
-  async addProduct({ continent, country, team, product }) {
-    try {
-      //leemos el catalogo actual
-      const data = await this.getProducts();
+  async addProduct (product){
+    try{
+        //leemos los productos existentes
+        const data = await this.getProducts();
 
-      //buscamos el continente
-      const continentFound = data.find((c) => c.continent === continent);
-      if (!continentFound) {
-        throw new Error(`Continente ${continent} no encontrado`);
-      }
-      //buscamos el pais dentro del continente
-      const countryFound = continentFound.countries.find(
-        (countryItem) => countryItem.name === country
-      );
-      if (!countryFound) {
-        throw new Error(
-          `Pais ${country} no encontrado en el continente ${continent}`
-        );
-      }
-      //buscamos el equipo dentro del pais
-      const teamFound = countryFound.teams.find((t) => t.name === team);
-      if (!teamFound) {
-        throw new Error(`Equipo ${team} no encontrado en el pais ${country}`);
-      }
-      // generamos un ID unico para el nuevo producto
-      //recorremos todo para encontrar el ID maximo
-      let maxId = 0;
-      for (const cont of data) {
-        for (const ctry of cont.countries) {
-          for (const tm of ctry.teams) {
-            for (const prod of tm.products) {
-              if (prod.id > maxId) {
-                maxId = prod.id;
-              }
-            }
-          }
+        //generamos un ID unico (incremental)
+        const maxId = data.length > 0 ? Math.max(...data.map(p => p.id)) : 0
+        const newProduct = {
+            id: maxId + 1,
+            ...product
         }
-      }
-      const newID = maxId + 1;
-      const newProduct = {
-        id: newID,
-        ...product,
-      };
-      //agregamos el nuevo producto al equipo correspondiente
-      teamFound.products.push(newProduct);
+        //agregamos el nuevo producto al array
+        data.push (newProduct)
 
-      //escribimos de nuevo toto el catalogo en el archivo products.json
-      const fs = require("fs");
-      await fs.promises.writeFile(this.path, JSON.stringify(data, null, 2));
-
-      return {
-        message: "Producto agregado exitosamente",
-        product: {
-          continent: continentFound.continent,
-          country: countryFound.name,
-          team: teamFound.name,
-          ...newProduct,
-        },
-      };
-    } catch (error) {
-      console.error("Error al agregar el producto:", error);
-      throw error;
+        //escribimos el nuevo JSON
+        await fs.promises.writeFile(this.path, JSON.stringify(data, null,2))
+        return{
+            message: 'Producto agregado exitosamente',
+            product: newProduct
+        }
+    }
+    catch(error){
+        console.error('Error al agregar el producto:', error);
+        throw error;
     }
   }
 
   //metodod para actualizar un producto existente
-  async updateProduct(pid, updateFields) {
-    try {
-      const data = await this.getProducts();
-      let productFound = false;
+  async updateProduct (pid, updateFields){
+    try{
+        const data = await this.getProducts();
+        //buscamos el indice del producto a actualizar
+        const index = data.findIndex((p)=> p.id === pid)
 
-      //recorremos todo para encontrar el producto por su ID
-      for (const continent of data) {
-        //recorremos paises
-        for (const country of continent.countries) {
-          //recorremos equipos
-          for (const team of country.teams) {
-            //buscamos el producto por su ID
-            const productIndex = team.products.findIndex((p) => p.id === pid);
-
-            if (productIndex !== -1) {
-              //producto encontrado, actualizamos los campos excepuando el ID
-              const oldProduct = team.products[productIndex];
-
-              //actualizamos solo los campos proporcionados
-              const updateProduct = {
-                ...oldProduct,
-                ...updateFields,
-                id: oldProduct.id, // ID no se actualiza
-              };
-              team.products[productIndex] = updateProduct;
-              productFound = true;
-              break; // salimos del bucle de equipos, no es necesario seguir buscando
-            }
-          }
-          if (productFound) break; // salimos del bucle de paises
+        if(index === -1){
+            throw new Error (`Producto con ID ${pid} no encontrado`)
         }
-        if (productFound) break; // salimos del bucle de continentes
-      }
-      if (!productFound) {
-        throw new Error(`Producto con ID ${pid} no encontrado`);
-      }
-      //Guardamos los cambios en el archivo JSON
-      const fs = require("fs");
-      await fs.promises.writeFile(this.path, JSON.stringify(data, null, 2));
-      return { message: "Producto actualizado exitosamente", id: pid };
-    } catch (error) {
-      console.error("Error al actualizar el producto:", error);
+        // creamos el nuevo objeto actualizado sin cambiar el ID
+        const updateProduct = {
+            ...data[index],
+            ...updateFields,
+            id: data[index].id
+        }
+        // reemplazamos el producto en el array
+        data[index] = updateProduct
+
+        //Guardamos los cambios en el JSON
+        await fs.promises.writeFile(this.path, JSON.stringify(data, null, 2))
+        return {
+            message: "Producto actualizado exitosamente",
+            product: updateProduct
+        }
+    } catch(error){
+        console.error('Error al actualizar el producto:', error);
+        throw error;
     }
   }
 
   // Método para eliminar un producto por su ID
-  async deleteProduct(pid) {
-    try {
-      const data = await this.getProducts();
-      let productFound = false;
+async deleteProduct(pid) {
+  try {
+    const data = await this.getProducts();
 
-      // Recorremos toda la estructura
-      for (const continent of data) {
-        for (const country of continent.countries) {
-          for (const team of country.teams) {
-            const productIndex = team.products.findIndex((p) => p.id === pid);
+    // Filtramos los productos para eliminar el que coincide con el ID
+    const newData = data.filter((p) => p.id !== pid);
 
-            if (productIndex !== -1) {
-              // Eliminamos el producto del array
-              team.products.splice(productIndex, 1);
-              productFound = true;
-              break;
-            }
-          }
-          if (productFound) break;
-        }
-        if (productFound) break;
-      }
-
-      if (!productFound) {
-        throw new Error(`Producto con ID ${pid} no encontrado`);
-      }
-
-      // Guardamos el nuevo catálogo sin el producto
-      const fs = require("fs");
-      await fs.promises.writeFile(this.path, JSON.stringify(data, null, 2));
-
-      return { message: `Producto con ID ${pid} eliminado correctamente` };
-    } catch (error) {
-      console.error("Error al eliminar el producto:", error);
-      throw error;
+    // Si la longitud no cambió, no existe el producto
+    if (data.length === newData.length) {
+      throw new Error(`Producto con ID ${pid} no encontrado`);
     }
+
+    // Guardamos el nuevo JSON
+    await fs.promises.writeFile(this.path, JSON.stringify(newData, null, 2));
+
+    return { message: `Producto con ID ${pid} eliminado correctamente` };
+  } catch (error) {
+    console.error("Error al eliminar el producto:", error);
+    throw error;
   }
 }
+  }
 
 module.exports = ProductManager;

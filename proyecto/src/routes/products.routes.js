@@ -20,12 +20,12 @@ router.get('/', async (req, res)=>{
 router.get('/:pid', async (req, res)=>{
     try{
         const pid = parseInt (req.params.pid)
-        const product = await productManager.getProductsById (pid);
+        const product = await productManager.getProductById (pid);
+
         //si no existe el producto
         if(!product){
             return res.status(404).json({error: 'Producto no encontrado'});
         }
-        //si existe el producto
         res.status(200).json(product);
     }
     catch(error){
@@ -35,93 +35,116 @@ router.get('/:pid', async (req, res)=>{
 })
 
 //Ruta post para agregar un nuevo producto
-router.post('/', async (req, res) => {
+router.post ('/', async (req, res)=>{
     try{
-        /* body para el post
-        {
-            "contient": "Europa",
-            "country": "España",
-            "team": "FC Barcelona",
-            "product": {
-                "player": "Lionel Messi",
-                "season": "2020/2021",
-                "category": "Home",
-                "price": 99.99,
-                "stock": 50,
-                "size": ["S", "M", "L", "XL"],
-            }
-        }
+        //body esperado para este endpoint
+        /*
+      {
+        "team": "Real Madrid",
+        "league": "La Liga",
+        "country": "España",
+        "continent": "Europa",
+        "player": "Bellingham",
+        "season": "2024/25",
+        "category": "Away",
+        "price": 1800,
+        "stock": 8,
+        "sizes": ["M", "L"]
+      }
         */
-        const {continent, country, team, product} = req.body;
-
-        //validamos que los datos necesarios esten presentes
-        if(!continent || !country || !team || !product){
-            return res.status(400).json({
-                error: 'Faltan datos. Debes enviar continent, country, team y product'
-            })
-        }
-        // Llamamos al métodos del manager para agregar el producto
-        const result = await productManager.addProduct({
-            continent,
-            country,
-            team,
-            product
+       const productData = req.body
+       //validar que los campos minimos esten presentes
+       const requieredFields = [
+        "team",
+        "league",
+        "country",
+        "continent",
+        "player",
+        "season",
+        "category",
+        "price",
+        "stock",
+        "sizes"
+       ]
+       const missingFields = requieredFields.filter(
+        (field) => !productData[field]
+       )
+       if (missingFields.length > 0){
+        return res.status(400).json({
+            error: `Faltan los siguientes campos ${missingFields.join (",")}`
         })
-        //respondemos con 201 para el nuevo producto agregado
-        res.status(201).json(result)
+       }
+       //llamamos al metodo del manager para agregar el producto
+       const result = await productManager.addProduct (productData)
+
+       //respondemos con el nuevo producto
+       res.status(201).json(result)
     }
-    catch(error){
-        console.error('Error en POST /api/products:', error.message);
-        //detectamos errores comunes y devolvemos codigos adecuados
-        if(error.message.includes('no encontrado')){
-            return res.status(404).json({error: error.message})
-        }
-        res.status(500).json({error: 'Error al agregar el producto'})
+    catch (error){
+        console.error ("Error en POST /api/products:", error.message);
+        res.status(500).json({error: 'Error interno del servidor', details: error.message});
     }
 })
 
 //ruta para actualizar un producto existente PUT
-router.put('/:pid', async (req, res) =>{
+router.put('/:pid', async (req, res)=>{
     try{
-        const pid = parseInt (req.params.pid)
-        const updateFields = req.body //campos a actualizar
+        //el ID por ahora es numerico
+        const pid = parseInt(req.params.pid)
+        //campos a actualizar
+        const updateFields = req.body
 
-        //validamos que almenos hay un campo para actualizar
-        if (Object.keys(updateFields).length === 0){
-            return res.status(400).json({error: 'No se enviaron campos para actualizar'})
+        //validamos que se haya enviado al menos un campo
+        if(Object.keys(updateFields).length === 0){
+            return res.status(400).json({
+                error: 'No se enviaron campos para actualizar'
+            })
         }
-
+        //Llamamos al metodo del manager
         const result = await productManager.updateProduct(pid, updateFields)
 
-        res.status(200).json(result)
-    }
-    catch(error){
-        console.error('Error en PUT /api/products/:pid:', error.message)
-
-        if(error.message.includes('no encontrado')){
-            return res.status(404).json({error: error.message})
+        // si el producto no fue encontrado
+        if(!result){
+            return res.status(404).json({error: 'Producto no encontrado'})
         }
-        res.status(500).json({error: 'Error interno del servidor'})
-   }
-})
-
-//DELETE para eliminar un producto por su ID
-router.delete('/:pid', async (req, res)=>{
-    try{
-        const pid = parseInt (req.params.pid)
-        const result = await productManager.deleteProduct(pid)
-        //respondemos con exito
+        // respondemos con exito
         res.status(200).json(result)
     }
     catch (error){
-        console.error ('Error en DELETE /api/products/:pid:', error.message)
+        console.error ('Error en PUT /api/products/:pid:', error.message)
 
         if(error.message.includes('no encontrado')){
             return res.status(404).json({error: error.message})
         }
-        res.status(500).json({error: 'Error interno del servidor'})
+        res.status(500).json({error: 'Error interno del servidor', details: error.message})
     }
 })
+
+// DELETE para eliminar un producto por su ID
+router.delete('/:pid', async (req, res) => {
+  try {
+    // IDs son numéricos por ahora
+    const pid = parseInt(req.params.pid);
+
+    // Llamamos al método del manager
+    const result = await productManager.deleteProduct(pid);
+
+    // Si el producto fue eliminado correctamente
+    res.status(200).json(result);
+
+  } catch (error) {
+    console.error('Error en DELETE /api/products/:pid:', error.message);
+
+    if (error.message.includes('no encontrado')) {
+      return res.status(404).json({ error: error.message });
+    }
+
+    res.status(500).json({
+      error: 'Error interno del servidor',
+      details: error.message
+    });
+  }
+});
 
 
 module.exports = router;
