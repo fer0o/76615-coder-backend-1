@@ -19,18 +19,18 @@ En esta primera entrega, los datos se persisten mediante archivos JSON utilizand
 proyecto/
 │
 ├── data/
-│   ├── products.json          # Persistencia de productos
+│   ├── products.json          # Persistencia de productos (estructura plana)
 │   └── carts.json             # Persistencia de carritos
 │
 ├── src/
 │   ├── app.js                 # Configuración principal de Express
 │   ├── server.js              # Punto de entrada del servidor
 │   ├── routes/
-│   │   ├── products.routes.js # Rutas de productos
+│   │   ├── products.routes.js # Rutas de productos (CRUD completo)
 │   │   └── carts.routes.js    # Rutas de carritos
 │   ├── managers/
-│   │   ├── ProductManager.js  # Lógica de productos
-│   │   └── CartManager.js     # Lógica de carritos
+│   │   ├── ProductManager.js  # Lógica de productos (FileSystem)
+│   │   └── CartManager.js     # Lógica de carritos (FileSystem)
 │
 ├── index.js                   
 ├── package.json
@@ -64,6 +64,10 @@ El servidor estará corriendo en `http://localhost:3000`
 ```json
 {
   "id": 1,
+  "team": "FC Barcelona",
+  "country": "España",
+  "continent": "Europa",
+  "league": "La Liga",
   "player": "Pedri",
   "season": "2024/25",
   "category": "Home",
