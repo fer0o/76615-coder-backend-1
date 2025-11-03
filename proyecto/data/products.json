@@ -1,99 +1,36 @@
 [
   {
+    "id": 1,
+    "team": "FC Barcelona",
+    "league": "La Liga",
+    "country": "España",
     "continent": "Europa",
-    "countries": [
-      {
-        "name": "España",
-        "teams": [
-          {
-            "name": "FC Barcelona",
-            "league": "La Liga",
-            "products": [
-              {
-                "id": 1,
-                "player": "Pedri",
-                "season": "2024/25",
-                "category": "Home",
-                "price": 1700,
-                "stock": 10,
-                "size": [
-                  "S",
-                  "M",
-                  "L",
-                  "XL"
-                ]
-              },
-              {
-                "id": 2,
-                "player": "Gündogan",
-                "season": "2024/25",
-                "category": "Third",
-                "price": 1750,
-                "stock": 5,
-                "size": [
-                  "M",
-                  "L"
-                ]
-              }
-            ]
-          },
-          {
-            "name": "Real Madrid",
-            "league": "La Liga",
-            "products": []
-          }
-        ]
-      },
-      {
-        "name": "Inglaterra",
-        "teams": [
-          {
-            "name": "Manchester City",
-            "league": "Premier League",
-            "products": []
-          },
-          {
-            "name": "Arsenal",
-            "league": "Premier League",
-            "products": []
-          }
-        ]
-      }
+    "player": "Pedri",
+    "season": "2024/25",
+    "category": "Home",
+    "price": 1700,
+    "stock": 10,
+    "sizes": [
+      "S",
+      "M",
+      "L",
+      "XL"
     ]
   },
   {
-    "continent": "América",
-    "countries": [
-      {
-        "name": "México",
-        "teams": [
-          {
-            "name": "América",
-            "league": "Liga MX",
-            "products": []
-          },
-          {
-            "name": "Chivas",
-            "league": "Liga MX",
-            "products": []
-          }
-        ]
-      },
-      {
-        "name": "Argentina",
-        "teams": [
-          {
-            "name": "Boca Juniors",
-            "league": "Liga Profesional Argentina",
-            "products": []
-          },
-          {
-            "name": "River Plate",
-            "league": "Liga Profesional Argentina",
-            "products": []
-          }
-        ]
-      }
+    "id": 2,
+    "team": "FC Barcelona",
+    "league": "La Liga",
+    "country": "España",
+    "continent": "Europa",
+    "player": "Gündogan",
+    "season": "2024/25",
+    "category": "Third",
+    "price": 2000,
+    "stock": 5,
+    "sizes": [
+      "M",
+      "L"
     ]
   }
 ]
