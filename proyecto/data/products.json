@@ -32,5 +32,23 @@
       "M",
       "L"
     ]
+  },
+  {
+    "id": 3,
+    "team": "Arsenal",
+    "league": "Premier League",
+    "country": "Inglaterra",
+    "continent": "Europa",
+    "player": "Bukayo Saka",
+    "season": "2024/25",
+    "category": "Home",
+    "price": 1650,
+    "stock": 15,
+    "sizes": [
+      "S",
+      "M",
+      "L",
+      "XL"
+    ]
   }
 ]
