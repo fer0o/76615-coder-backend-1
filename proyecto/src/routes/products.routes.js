@@ -112,10 +112,6 @@ router.put('/:pid', async (req, res)=>{
     }
     catch (error){
         console.error ('Error en PUT /api/products/:pid:', error.message)
-
-        if(error.message.includes('no encontrado')){
-            return res.status(404).json({error: error.message})
-        }
         res.status(500).json({error: 'Error interno del servidor', details: error.message})
     }
 })
@@ -129,15 +125,15 @@ router.delete('/:pid', async (req, res) => {
     // Llamamos al método del manager
     const result = await productManager.deleteProduct(pid);
 
+    if(!result) {
+        return res.status(404).json({ error: 'Producto no encontrado' });
+    }
+
     // Si el producto fue eliminado correctamente
     res.status(200).json(result);
 
   } catch (error) {
     console.error('Error en DELETE /api/products/:pid:', error.message);
-
-    if (error.message.includes('no encontrado')) {
-      return res.status(404).json({ error: error.message });
-    }
 
     res.status(500).json({
       error: 'Error interno del servidor',
