@@ -6,18 +6,26 @@ const app = express();
 // Middleware para que Express pueda leer JSON en las requests
 app.use(express.json());
 
-// --- RUTAS BASE --- //
-const productsRouter = require ('./routes/products.routes')
-const cartsRouter = require ('./routes/carts.routes')
+// Importar las rutas
+const apiRoutes = require('./routes/index');
 
-// Usar las rutas
-app.use('/api/products', productsRouter);
-app.use('/api/carts', cartsRouter);
+// Usar las rutas con el prefijo /api
+app.use('/api', apiRoutes);
 
 // Ruta raíz temporal
 app.get('/', (req, res) => {
-  res.send('Bienvenido a FutbolStore API ⚽');
-});
+  try{
+    res.status(200).json({
+      title: "Bienvenido a FutbolStore API ⚽",
+      message: "Usa las rutas /api/products y /api/carts para interactuar con la API",  
+      description: "Proyecto final del curso Backend con Node.js - Coderhouse",
+      version: "1.0.0",
+    })
+  }
+  catch(error){
+    res.status(500).json({ error: 'Error en el servidor' });
+  }
+})
 
 // Exportar la app para usarla en server.js
 module.exports = app;

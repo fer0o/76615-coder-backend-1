@@ -52,11 +52,11 @@ router.post('/:cid/product/:pid', async (req, res)=>{
     }
     catch(error){
         console.error('Error al agregar el producto al carrito:', error);
-        if(error.message.includes('no encontrado')){
-            res.status(404).json({error: error.message});
+        if(error.message.includes('No se encontró carrito')){
+            return res.status(404).json({error: error.message});
         }
+        return res.status(500).json({error: 'Error al agregar el producto al carrito'});
     }
-        res.status(500).json({error: 'Error interno del servidor'});
 })
 
 module.exports = router;
