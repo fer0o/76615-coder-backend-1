@@ -2,6 +2,7 @@
 
 const express = require('express');
 const app = express();
+const { paths } = require('./config/config');
 
 // Middleware para que Express pueda leer JSON en las requests
 app.use(express.json());
@@ -11,6 +12,11 @@ const apiRoutes = require('./routes/index');
 
 // Usar las rutas con el prefijo /api
 app.use('/api', apiRoutes);
+
+//servir los archivos estáticos desde la carpeta 'public'
+
+console.log("------->", paths.public);
+app.use("/public",express.static(paths.public));
 
 // Ruta raíz temporal
 app.get('/', (req, res) => {
