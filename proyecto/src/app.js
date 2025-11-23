@@ -5,42 +5,21 @@ const app = express();
 const { paths } = require('./config/config');
 const handlebars = require('express-handlebars');
 
-const ProductManager = require ("./managers/ProductManager")
-const productManager = new ProductManager();
-
-// Middleware para que Express pueda leer JSON en las requests
+// Middleware
 app.use(express.json());
 
-// Importar las rutas
+// Rutas API
 const apiRoutes = require('./routes/index');
-
-// Usar las rutas con el prefijo /api
 app.use('/api', apiRoutes);
 
-//servir los archivos estáticos desde la carpeta 'public'
+// Rutas de Vistas (nuevo)
+const viewsRouter = require('./routes/views.router');
+app.use('/', viewsRouter);
 
-// console.log("------->", paths.public);
-app.use("/public",express.static(paths.public));
+// Archivos estáticos
+app.use("/public", express.static(paths.public));
 
-
-app.get("/", async (req, res) => {
-  try {
-    const products = await productManager.getProducts();
-
-    res.render("pages/home", {
-      title: "Lista de productos",
-      products,
-    });
-  } catch (error) {
-    console.error("Error al cargar productos:", error);
-    res.status(500).send("Error cargando productos");
-  }
-  app.get("/realtimeproducts", (req, res)=>{
-    res.render("pages/realtimeproducts");
-  })
-});
-
-
+// Handlebars
 app.engine(
   "hbs",
   handlebars.engine({
@@ -49,10 +28,9 @@ app.engine(
     layoutsDir: paths.layouts,
     partialsDir: paths.partials,
   })
-)
+);
 app.set("view engine", "hbs");
 app.set("views", paths.views);
 
-
-// Exportar la app para usarla en server.js
+// Exportar app
 module.exports = app;

@@ -50,5 +50,17 @@
       "L",
       "XL"
     ]
+  },
+  {
+    "id": 4,
+    "team": "Inter Miami",
+    "player": "Messi",
+    "price": 2000
+  },
+  {
+    "id": 5,
+    "team": "Atletico de Madrid",
+    "player": "Julian Alvarez",
+    "price": 1800
   }
 ]
