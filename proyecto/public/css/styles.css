@@ -1,5 +1,3 @@
-/* ======== ESTILOS GENERALES ======== */
-
 body {
   font-family: Arial, sans-serif;
   margin: 20px;
@@ -19,7 +17,7 @@ hr {
   border-top: 1px solid #ccc;
 }
 
-/* ======== LISTA DE PRODUCTOS ======== */
+/* lista de productos */
 
 .product-item {
   display: flex;
@@ -36,7 +34,7 @@ hr {
   font-size: 15px;
 }
 
-/* ======== BOTONES ======== */
+/* botones */
 
 button {
   background: #0074D9;
@@ -84,7 +82,7 @@ section {
   color: #222;
 }
 
-/* Estilos adicionales opcionales */
+
 .product-info .season {
   margin-left: 5px;
   color: #777;
@@ -219,7 +217,7 @@ section {
 
 /* NAVBAR */
 .navbar {
-  background: #1e3a8a; /* azul bonito */
+  background: #1e3a8a; 
   padding: 12px 20px;
 }
 
@@ -237,10 +235,10 @@ section {
 }
 
 .nav-link:hover {
-  color: #dbeafe; /* azul claro */
+  color: #dbeafe; 
 }
 
-/* SEPARAR CONTENIDO DEL NAVBAR */
+
 .main-content {
   margin-top: 20px;
 }
