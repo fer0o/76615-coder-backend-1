@@ -2,22 +2,35 @@
 
 const express = require('express');
 const app = express();
+const { paths } = require('./config/config');
+const handlebars = require('express-handlebars');
 
-// Middleware para que Express pueda leer JSON en las requests
+// Middleware
 app.use(express.json());
 
-// --- RUTAS BASE --- //
-const productsRouter = require ('./routes/products.routes')
-const cartsRouter = require ('./routes/carts.routes')
+// Rutas API
+const apiRoutes = require('./routes/index');
+app.use('/api', apiRoutes);
 
-// Usar las rutas
-app.use('/api/products', productsRouter);
-app.use('/api/carts', cartsRouter);
+// Rutas de Vistas (nuevo)
+const viewsRouter = require('./routes/views.router');
+app.use('/', viewsRouter);
 
-// Ruta raíz temporal
-app.get('/', (req, res) => {
-  res.send('Bienvenido a FutbolStore API ⚽');
-});
+// Archivos estáticos
+app.use("/public", express.static(paths.public));
 
-// Exportar la app para usarla en server.js
+// Handlebars
+app.engine(
+  "hbs",
+  handlebars.engine({
+    extname: ".hbs",
+    defaultLayout: "main",
+    layoutsDir: paths.layouts,
+    partialsDir: paths.partials,
+  })
+);
+app.set("view engine", "hbs");
+app.set("views", paths.views);
+
+// Exportar app
 module.exports = app;
