@@ -1,3 +1,4 @@
+// proyecto/public/js/realTime.js
 console.log("realTime.js funcionando");
 
 // Conectar con el servidor WebSocket
@@ -8,9 +9,7 @@ socket.on("connect", () => {
   console.log("Conectado al servidor vía WebSocket");
 });
 
-// ================================
-// FORMULARIO: CREAR PRODUCTO
-// ================================
+// Formulario: CREAR PRODUCTO
 const createForm = document.getElementById("createForm");
 
 createForm.addEventListener("submit", (e) => {
@@ -30,9 +29,8 @@ createForm.addEventListener("submit", (e) => {
   createForm.reset();
 });
 
-// ================================
-// FORMULARIO: ELIMINAR PRODUCTO
-// ================================
+// Formulario: ELIMINAR PRODUCTO
+
 const deleteForm = document.getElementById("deleteForm");
 
 if (deleteForm) {
@@ -49,9 +47,7 @@ if (deleteForm) {
   });
 }
 
-// ================================
-// ACTUALIZAR LISTA EN TIEMPO REAL
-// ================================
+// actualiza la lista de productos en pantalla en tiempo real
 socket.on("updateProducts", (products) => {
   console.log("Lista actualizada de productos:", products);
 

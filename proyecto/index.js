@@ -15,17 +15,17 @@ const io = new Server(server);
 
 // Eventos WebSocket
 io.on("connection", async (socket) => {
-  console.log("🟢 Cliente conectado vía WebSocket");
+  console.log("Cliente conectado vía WebSocket");
 
-  // Cuando un nuevo cliente se conecta, enviarle la lista actual
+  // lista de productos al conectar
   const products = await productManager.getProducts();
   socket.emit("updateProducts", products);
 
-  // ==============================
+  
   // Evento: CREAR PRODUCTO
-  // ==============================
+
   socket.on("crearProducto", async (data) => {
-    console.log("📥 Producto recibido:", data);
+    console.log("Producto recibido:", data);
 
     try {
       let products = await productManager.getProducts();
@@ -41,7 +41,7 @@ io.on("connection", async (socket) => {
         player: data.player,
         price: Number(data.price),
 
-        // Valores por defecto para mantener consistencia
+        // Valores para mantener el formato de products.json
         league: "Sin liga",
         country: "N/A",
         continent: "N/A",
@@ -61,11 +61,10 @@ io.on("connection", async (socket) => {
     }
   });
 
-  // ==============================
-  // Evento: ELIMINAR PRODUCTO
-  // ==============================
+ 
+  // ELIMINAR PRODUCTO
   socket.on("eliminarProducto", async (productId) => {
-    console.log("🗑 Eliminando producto ID:", productId);
+    console.log("Eliminando producto ID:", productId);
 
     try {
       let products = await productManager.getProducts();
@@ -82,7 +81,7 @@ io.on("connection", async (socket) => {
   });
 
   socket.on("disconnect", () => {
-    console.log("🔴 Cliente desconectado");
+    console.log("Cliente desconectado");
   });
 });
 
