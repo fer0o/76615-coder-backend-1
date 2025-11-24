@@ -55,12 +55,13 @@
     "id": 4,
     "team": "Inter Miami",
     "player": "Messi",
-    "price": 2000
-  },
-  {
-    "id": 5,
-    "team": "Atletico de Madrid",
-    "player": "Julian Alvarez",
-    "price": 1800
+    "price": 1900,
+    "league": "Sin liga",
+    "country": "N/A",
+    "continent": "N/A",
+    "season": "2024/25",
+    "category": "N/A",
+    "stock": 0,
+    "sizes": []
   }
 ]

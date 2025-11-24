@@ -30,20 +30,32 @@ io.on("connection", async (socket) => {
     try {
       let products = await productManager.getProducts();
 
-      const maxId = products.length > 0 ? Math.max(...products.map(p => p.id)) : 0;
+      const maxId =
+        products.length > 0 ? Math.max(...products.map((p) => p.id)) : 0;
 
       const newProduct = {
         id: maxId + 1,
-        ...data
+
+        // Datos enviados desde el form
+        team: data.team,
+        player: data.player,
+        price: Number(data.price),
+
+        // Valores por defecto para mantener consistencia
+        league: "Sin liga",
+        country: "N/A",
+        continent: "N/A",
+        season: "2024/25",
+        category: "N/A",
+        stock: 0,
+        sizes: [],
       };
 
       products.push(newProduct);
 
       await productManager.saveProducts(products);
 
-      // Avisar a todos los clientes del nuevo estado
       io.emit("updateProducts", products);
-
     } catch (error) {
       console.error("Error al crear producto:", error);
     }
@@ -64,7 +76,6 @@ io.on("connection", async (socket) => {
 
       // Avisar a todos los clientes del nuevo listado
       io.emit("updateProducts", products);
-
     } catch (error) {
       console.error("Error al eliminar producto:", error);
     }
