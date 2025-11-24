@@ -1,10 +1,18 @@
-<h1>{{title}}</h1>
+<h1 class="page-title">{{title}}</h1>
 
-<ul>
+<div class="cards-container">
   {{#each products}}
-    <li>
-      <strong>{{team}}</strong> — {{player}}  
-      ({{season}} - ${{price}})
-    </li>
+    <div class="product-card">
+      <div class="product-text">
+        <strong class="team">{{team}}</strong>
+        <span class="dash">—</span>
+        <span class="player">{{player}}</span>
+
+        <div class="details">
+          <span class="season">{{season}}</span>
+          <span class="price">${{price}}</span>
+        </div>
+      </div>
+    </div>
   {{/each}}
-</ul>
+</div>

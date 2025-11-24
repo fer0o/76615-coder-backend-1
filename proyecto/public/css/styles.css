@@ -1,0 +1,246 @@
+/* ======== ESTILOS GENERALES ======== */
+
+body {
+  font-family: Arial, sans-serif;
+  margin: 20px;
+  background: #e8ecf3;
+  color: #222;
+}
+
+h1, h2 {
+  color: #222;
+  font-weight: 700;
+  margin-bottom: 10px;
+}
+
+hr {
+  margin: 25px 0;
+  border: none;
+  border-top: 1px solid #ccc;
+}
+
+/* ======== LISTA DE PRODUCTOS ======== */
+
+.product-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: white;
+  padding: 8px 12px;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  margin-bottom: 8px;
+}
+
+.product-text {
+  font-size: 15px;
+}
+
+/* ======== BOTONES ======== */
+
+button {
+  background: #0074D9;
+  color: white;
+  border: none;
+  padding: 6px 12px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 14px;
+}
+
+button:hover {
+  background: #005fa3;
+}
+
+button.delete-btn {
+  background: #ff4136;
+}
+
+button.delete-btn:hover {
+  background: #cc342b;
+}
+
+/* ======== FORMULARIOS ======== */
+
+form {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+
+input {
+  border: 1px solid #ccc;
+  padding: 6px;
+  border-radius: 4px;
+}
+
+section {
+  margin-bottom: 30px;
+}
+/* Título del home */
+.page-title {
+  font-size: 28px;
+  margin-bottom: 20px;
+  color: #222;
+}
+
+/* Estilos adicionales opcionales */
+.product-info .season {
+  margin-left: 5px;
+  color: #777;
+}
+
+.product-info .price {
+  margin-left: 10px;
+  font-weight: bold;
+  color: #009944;
+}
+
+/* Contenedor tipo catálogo */
+.cards-container {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: 16px;
+  margin-top: 20px;
+}
+
+/* Las tarjetas */
+.product-card {
+  background: white;
+  border: 1px solid #ddd;
+  border-radius: 10px;
+  padding: 16px;
+  transition: 0.2s ease-in-out;
+}
+
+/* .product-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0px 4px 14px rgba(0,0,0,0.1);
+} */
+
+/* Texto de cada card */
+.product-text .team {
+  font-size: 18px;
+}
+
+.product-text .player {
+  color: #666;
+}
+
+.product-text .dash {
+  margin: 0 6px;
+  color: #aaa;
+}
+
+.details {
+  margin-top: 8px;
+  display: flex;
+  justify-content: space-between;
+  font-size: 15px;
+}
+
+.details .season {
+  color: #888;
+}
+
+.details .price {
+  font-weight: bold;
+  color: #009944;
+}
+
+/* Secciones */
+.realtime-section, .form-section {
+  margin-bottom: 25px;
+}
+
+.subtitle {
+  font-size: 20px;
+  margin-bottom: 10px;
+  color: #333;
+}
+
+/* Formularios alineados */
+.form-inline {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+
+.form-inline input {
+  flex: 1;
+}
+
+/* Cards renderizadas por WebSocket */
+.products-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.product-card {
+  background: white;
+  border: 1px solid #ddd;
+  border-radius: 10px;
+  padding: 12px 16px;
+  transition: 0.2s ease-in-out;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.product-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0px 4px 14px rgba(0,0,0,0.1);
+}
+
+.product-info {
+  font-size: 16px;
+}
+
+.product-info .price {
+  margin-left: 10px;
+  font-weight: bold;
+  color: #009944;
+}
+
+/* Botón de eliminar */
+.delete-btn {
+  background: #ff4c4c;
+  color: white;
+  border: none;
+  padding: 6px 10px;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.delete-btn:hover {
+  background: #d93636;
+}
+
+/* NAVBAR */
+.navbar {
+  background: #1e3a8a; /* azul bonito */
+  padding: 12px 20px;
+}
+
+.nav-container {
+  display: flex;
+  gap: 20px;
+}
+
+.nav-link {
+  color: white;
+  font-weight: 600;
+  text-decoration: none;
+  font-size: 16px;
+  transition: 0.2s;
+}
+
+.nav-link:hover {
+  color: #dbeafe; /* azul claro */
+}
+
+/* SEPARAR CONTENIDO DEL NAVBAR */
+.main-content {
+  margin-top: 20px;
+}

@@ -53,21 +53,26 @@ socket.on("updateProducts", (products) => {
 
   const container = document.getElementById("products-container");
   container.innerHTML = "";
+products.forEach((p) => {
+  const card = document.createElement("div");
+  card.classList.add("product-card");
 
-  products.forEach((p) => {
-    const item = document.createElement("div");
-    item.style.marginBottom = "6px";
+  card.innerHTML = `
+    <div class="product-info">
+      <strong>${p.id}. ${p.team}</strong> — ${p.player}
+      <span class="price">$${p.price}</span>
+    </div>
 
-    item.innerHTML = `
-      ${p.id} — ${p.team} / ${p.player} — $${p.price}
-      <button data-id="${p.id}" style="margin-left:10px;">Eliminar</button>
-    `;
+    <button class="delete-btn" data-id="${p.id}">
+      Eliminar
+    </button>
+  `;
 
-    container.appendChild(item);
-  });
+  container.appendChild(card);
+});
 
   // Escuchar clic de cada botón
-  const buttons = container.querySelectorAll("button");
+  const buttons = container.querySelectorAll(".delete-btn");
 
   buttons.forEach((btn) => {
     btn.addEventListener("click", () => {
