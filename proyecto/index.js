@@ -1,4 +1,16 @@
 // index.js (root)
+require("dotenv").config();
+const mongoose = require("mongoose");
+
+
+mongoose
+  .connect(process.env.MONGO_URL)
+  .then(() => console.log("🟢 MongoDB conectado correctamente"))
+  .catch((err) => {
+    console.error("🔴 Error al conectar MongoDB:", err.message);
+    process.exit(1);
+  });
+
 
 const app = require("./src/app");
 const http = require("http");
