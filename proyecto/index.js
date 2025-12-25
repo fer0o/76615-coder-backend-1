@@ -2,7 +2,6 @@
 require("dotenv").config();
 const mongoose = require("mongoose");
 
-
 mongoose
   .connect(process.env.MONGO_URL)
   .then(() => console.log("🟢 MongoDB conectado correctamente"))
@@ -11,96 +10,67 @@ mongoose
     process.exit(1);
   });
 
-
 const app = require("./src/app");
 const http = require("http");
 const { Server } = require("socket.io");
 
-const ProductManager = require("./src/managers/ProductManager");
-const productManager = new ProductManager();
+const ProductManagerMongo = require("./src/managersMongo/ProductManagerMongo");
+const productManager = new ProductManagerMongo();
 
-// Crear servidor HTTP basado en Express
 const server = http.createServer(app);
-
-// Crear instancia de Socket.IO
 const io = new Server(server);
 
-// Eventos WebSocket
+// =======================
+// SOCKET.IO
+// =======================
 io.on("connection", async (socket) => {
-  console.log("Cliente conectado vía WebSocket");
+  console.log("🟣 Cliente conectado (Realtime)");
 
-  // lista de productos al conectar
+  // 🔹 Enviar productos actuales
   const products = await productManager.getProducts();
   socket.emit("updateProducts", products);
 
-  
-  // Evento: CREAR PRODUCTO
-
+  // 🔹 CREAR PRODUCTO
   socket.on("crearProducto", async (data) => {
-    console.log("Producto recibido:", data);
-
     try {
-      let products = await productManager.getProducts();
-
-      const maxId =
-        products.length > 0 ? Math.max(...products.map((p) => p.id)) : 0;
-
-      const newProduct = {
-        id: maxId + 1,
-
-        // Datos enviados desde el form
+      await productManager.addProduct({
         team: data.team,
-        player: data.player,
-        price: Number(data.price),
-
-        // Valores para mantener el formato de products.json
-        league: "Sin liga",
+        league: "N/A",
         country: "N/A",
         continent: "N/A",
+        player: data.player,
         season: "2024/25",
         category: "N/A",
+        price: Number(data.price),
         stock: 0,
         sizes: [],
-      };
+      });
 
-      products.push(newProduct);
-
-      await productManager.saveProducts(products);
-
-      io.emit("updateProducts", products);
+      const updatedProducts = await productManager.getProducts();
+      io.emit("updateProducts", updatedProducts);
     } catch (error) {
-      console.error("Error al crear producto:", error);
+      console.error("Error creando producto realtime:", error.message);
     }
   });
 
- 
-  // ELIMINAR PRODUCTO
+  // 🔹 ELIMINAR PRODUCTO
   socket.on("eliminarProducto", async (productId) => {
-    console.log("Eliminando producto ID:", productId);
-
     try {
-      let products = await productManager.getProducts();
+      await productManager.deleteProduct(productId);
 
-      products = products.filter((p) => p.id !== productId);
-
-      await productManager.saveProducts(products);
-
-      // Avisar a todos los clientes del nuevo listado
-      io.emit("updateProducts", products);
+      const updatedProducts = await productManager.getProducts();
+      io.emit("updateProducts", updatedProducts);
     } catch (error) {
-      console.error("Error al eliminar producto:", error);
+      console.error("Error eliminando producto realtime:", error.message);
     }
   });
 
   socket.on("disconnect", () => {
-    console.log("Cliente desconectado");
+    console.log("🔴 Cliente desconectado");
   });
 });
 
-// Puerto
 const PORT = 3000;
-
-// Levantar servidor HTTP + WebSocket
 server.listen(PORT, () => {
-  console.log(`Servidor HTTP/WS corriendo en el puerto ${PORT}`);
+  console.log(`🚀 Servidor HTTP + WS corriendo en puerto ${PORT}`);
 });
