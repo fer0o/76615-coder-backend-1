@@ -2,29 +2,39 @@
 const ProductModel = require("../models/Product.model");
 
 class ProductManagerMongo {
-  async getProducts() {
+  //pagination
+  async getProducts({ limit = 10, page = 1 } = {}) {
     try {
-      const products = await ProductModel.find().lean();
-      return products;
+      const skip = (page - 1) * limit;
+
+      const products = await ProductModel.find().skip(skip).limit(limit).lean();
+
+      const totalProducts = await ProductModel.countDocuments();
+      const totalPages = Math.ceil(totalProducts / limit);
+
+      return {
+        status: "success",
+        payload: products,
+        pagination: {
+          totalProducts,
+          totalPages,
+          page,
+          limit,
+          hasPrevPage: page > 1,
+          hasNextPage: page < totalPages,
+        },
+      };
     } catch (error) {
       console.error("Error al obtener productos (Mongo):", error);
-      return [];
+      throw error;
     }
   }
 
   async getProductById(pid) {
     try {
       const product = await ProductModel.findById(pid).lean();
-
-      // Si no existe, devolvemos null (igual que FS)
-      if (!product) {
-        return null;
-      }
-
-      return product;
+      return product || null;
     } catch (error) {
-      // Si el id es inválido o hay otro error,
-      // NO rompemos la app: devolvemos null
       console.error("Error al obtener producto por ID (Mongo):", error);
       return null;
     }
@@ -33,7 +43,6 @@ class ProductManagerMongo {
   async addProduct(product) {
     try {
       const newProduct = await ProductModel.create(product);
-
       return {
         message: "Producto agregado exitosamente",
         product: newProduct.toObject(),
