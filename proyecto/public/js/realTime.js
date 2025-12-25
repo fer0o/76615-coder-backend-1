@@ -1,85 +1,82 @@
-// proyecto/public/js/realTime.js
 console.log("realTime.js funcionando");
 
-// Conectar con el servidor WebSocket
 const socket = io();
 
-// Mensaje cuando se establece la conexión
 socket.on("connect", () => {
   console.log("Conectado al servidor vía WebSocket");
 });
 
-// Formulario: CREAR PRODUCTO
+// ===============================
+// CREAR PRODUCTO (API REST)
+// ===============================
 const createForm = document.getElementById("createForm");
 
-createForm.addEventListener("submit", (e) => {
+createForm.addEventListener("submit", async (e) => {
   e.preventDefault();
 
+  const formData = new FormData(createForm);
+
   const product = {
-    team: createForm.team.value,
-    player: createForm.player.value,
-    price: Number(createForm.price.value)
+    team: formData.get("team"),
+    player: formData.get("player"),
+    league: formData.get("league"),
+    country: formData.get("country"),
+    continent: formData.get("continent"),
+    season: formData.get("season"),
+    category: formData.get("category"),
+    price: Number(formData.get("price")),
+    stock: Number(formData.get("stock")),
+    sizes: formData
+      .get("sizes")
+      .split(",")
+      .map((s) => s.trim()),
   };
 
-  console.log("Enviando producto:", product);
+  try {
+    await fetch("/api/products", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(product),
+    });
 
-  // Evento del socket para crear producto
-  socket.emit("crearProducto", product);
-
-  createForm.reset();
+    createForm.reset();
+  } catch (error) {
+    console.error("Error creando producto:", error);
+  }
 });
 
-// Formulario: ELIMINAR PRODUCTO
-
-const deleteForm = document.getElementById("deleteForm");
-
-if (deleteForm) {
-  deleteForm.addEventListener("submit", (e) => {
-    e.preventDefault();
-
-    const productId = Number(deleteForm.productId.value);
-
-    console.log("Solicitando eliminación ID:", productId);
-
-    socket.emit("eliminarProducto", productId);
-
-    deleteForm.reset();
-  });
-}
-
-// actualiza la lista de productos en pantalla en tiempo real
-socket.on("updateProducts", (products) => {
-  console.log("Lista actualizada de productos:", products);
+// ===============================
+// ACTUALIZAR LISTA (SOCKET)
+// ===============================
+socket.on("updateProducts", (data) => {
+  const products = data.payload;
 
   const container = document.getElementById("products-container");
   container.innerHTML = "";
-products.forEach((p) => {
-  const card = document.createElement("div");
-  card.classList.add("product-card");
 
-  card.innerHTML = `
-    <div class="product-info">
-      <strong>${p.id}. ${p.team}</strong> — ${p.player}
-      <span class="price">$${p.price}</span>
-    </div>
+  products.forEach((p) => {
+    const card = document.createElement("div");
+    card.classList.add("product-card");
 
-    <button class="delete-btn" data-id="${p.id}">
-      Eliminar
-    </button>
-  `;
+    card.innerHTML = `
+      <strong>${p.team}</strong> — ${p.player}
+      <span>$${p.price}</span>
+      <button data-id="${p._id}" class="delete-btn">Eliminar</button>
+    `;
 
-  container.appendChild(card);
-});
+    container.appendChild(card);
+  });
 
-  // Escuchar clic de cada botón
-  const buttons = container.querySelectorAll(".delete-btn");
+  // eliminar por API
+  document.querySelectorAll(".delete-btn").forEach((btn) => {
+    btn.addEventListener("click", async () => {
+      const id = btn.dataset.id;
 
-  buttons.forEach((btn) => {
-    btn.addEventListener("click", () => {
-      const id = Number(btn.dataset.id);
-      console.log("Eliminando producto ID:", id);
-
-      socket.emit("eliminarProducto", id);
+      await fetch(`/api/products/${id}`, {
+        method: "DELETE",
+      });
     });
   });
 });

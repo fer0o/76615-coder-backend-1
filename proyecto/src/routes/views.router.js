@@ -1,19 +1,21 @@
 const express = require("express");
 const router = express.Router();
 
-const ProductManager = require("../managers/ProductManager");
-const productManager = new ProductManager();
+const ProductManagerMongo = require("../managersMongo/ProductManagerMongo");
+const productManager = new ProductManagerMongo();
 
 // Vista Home
 router.get("/", async (req, res) => {
   try {
-    const products = await productManager.getProducts();
+    const result = await productManager.getProducts(req.query);
 
     res.render("pages/home", {
       title: "Lista de productos",
-      products,
+      products: result.payload,
+      pagination: result.pagination, // por si luego lo quieres usar
     });
   } catch (error) {
+    console.error(error);
     res.status(500).send("Error cargando productos");
   }
 });
@@ -21,10 +23,13 @@ router.get("/", async (req, res) => {
 // Vista RealTime
 router.get("/realtimeproducts", async (req, res) => {
   try {
-    const products = await productManager.getProducts();
+    const result = await productManager.getProducts(req.query);
 
-    res.render("pages/realTimeProducts", { products });
+    res.render("pages/realTimeProducts", {
+      products: result.payload,
+    });
   } catch (error) {
+    console.error(error);
     res.status(500).send("Error cargando productos (realtime)");
   }
 });
