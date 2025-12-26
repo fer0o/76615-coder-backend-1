@@ -106,6 +106,7 @@ Elimina un producto
   "stock": 10,
   "sizes": ["S", "M", "L", "XL"]
 }
+```
 
 ## Carritos
 	•	POST /api/carts
