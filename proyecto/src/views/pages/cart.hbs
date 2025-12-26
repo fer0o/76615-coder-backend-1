@@ -1,0 +1,46 @@
+<h1 class="page-title">{{title}}</h1>
+
+{{#if products.length}}
+
+  <div class="cards-container">
+    {{#each products}}
+      <div class="product-card">
+
+        <div class="product-text">
+          <strong class="team">{{this.product.team}}</strong>
+          <span class="dash">—</span>
+          <span class="player">{{this.product.player}}</span>
+
+          <div class="details">
+            <span class="season">{{this.product.season}}</span>
+            <span class="price">
+              ${{this.product.price}} × {{this.quantity}}
+            </span>
+          </div>
+        </div>
+
+        <!-- BOTÓN ELIMINAR PRODUCTO -->
+        <button
+          class="remove-btn delete-btn"
+          data-product-id="{{this.product._id}}"
+        >
+          Eliminar
+        </button>
+
+      </div>
+    {{/each}}
+  </div>
+
+  <hr>
+
+  <!--BOTÓN VACIAR CARRITO -->
+  <button id="clear-cart-btn" class="delete-btn">
+    Vaciar carrito
+  </button>
+
+{{else}}
+  <p>El carrito está vacío.</p>
+{{/if}}
+
+<!--SCRIPT -->
+<script src="/public/js/cart.js"></script>

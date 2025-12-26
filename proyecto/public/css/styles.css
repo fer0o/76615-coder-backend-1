@@ -1,3 +1,7 @@
+/* ===================== */
+/* BASE */
+/* ===================== */
+
 body {
   font-family: Arial, sans-serif;
   margin: 20px;
@@ -17,31 +21,20 @@ hr {
   border-top: 1px solid #ccc;
 }
 
-/* lista de productos */
-
-.product-item {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  background: white;
-  padding: 8px 12px;
-  border: 1px solid #ddd;
-  border-radius: 6px;
-  margin-bottom: 8px;
+section {
+  margin-bottom: 30px;
 }
 
-.product-text {
-  font-size: 15px;
-}
-
-/* botones */
+/* ===================== */
+/* BOTONES */
+/* ===================== */
 
 button {
   background: #0074D9;
   color: white;
   border: none;
-  padding: 6px 12px;
-  border-radius: 4px;
+  padding: 8px 14px;
+  border-radius: 6px;
   cursor: pointer;
   font-size: 14px;
 }
@@ -51,20 +44,21 @@ button:hover {
 }
 
 button.delete-btn {
-  background: #ff4136;
+  background: #ff4c4c;
 }
 
 button.delete-btn:hover {
-  background: #cc342b;
+  background: #d93636;
 }
 
-/* ======== FORMULARIOS ======== */
-
-form {
-  display: flex;
-  gap: 10px;
-  margin-bottom: 10px;
+button.disabled {
+  background: #ccc;
+  cursor: not-allowed;
 }
+
+/* ===================== */
+/* FORMULARIOS */
+/* ===================== */
 
 input {
   border: 1px solid #ccc;
@@ -72,152 +66,32 @@ input {
   border-radius: 4px;
 }
 
-section {
-  margin-bottom: 30px;
-}
-/* Título del home */
-.page-title {
-  font-size: 28px;
-  margin-bottom: 20px;
-  color: #222;
-}
-
-
-.product-info .season {
-  margin-left: 5px;
-  color: #777;
-}
-
-.product-info .price {
-  margin-left: 10px;
-  font-weight: bold;
-  color: #009944;
-}
-
-/* Contenedor tipo catálogo */
-.cards-container {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
-  gap: 16px;
-  margin-top: 20px;
-}
-
-/* Las tarjetas */
-.product-card {
-  background: white;
-  border: 1px solid #ddd;
-  border-radius: 10px;
-  padding: 16px;
-  transition: 0.2s ease-in-out;
-}
-
-/* .product-card:hover {
-  transform: translateY(-4px);
-  box-shadow: 0px 4px 14px rgba(0,0,0,0.1);
-} */
-
-/* Texto de cada card */
-.product-text .team {
-  font-size: 18px;
-}
-
-.product-text .player {
-  color: #666;
-}
-
-.product-text .dash {
-  margin: 0 6px;
-  color: #aaa;
-}
-
-.details {
-  margin-top: 8px;
-  display: flex;
-  justify-content: space-between;
-  font-size: 15px;
-}
-
-.details .season {
-  color: #888;
-}
-
-.details .price {
-  font-weight: bold;
-  color: #009944;
-}
-
-/* Secciones */
-.realtime-section, .form-section {
-  margin-bottom: 25px;
-}
-
-.subtitle {
-  font-size: 20px;
-  margin-bottom: 10px;
-  color: #333;
-}
-
-/* Formularios alineados */
 .form-inline {
   display: flex;
   gap: 10px;
-  margin-bottom: 10px;
 }
 
 .form-inline input {
   flex: 1;
 }
 
-/* Cards renderizadas por WebSocket */
-.products-list {
-  display: flex;
-  flex-direction: column;
+/* Formulario en grid (Realtime create) */
+.form-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
   gap: 12px;
 }
 
-.product-card {
-  background: white;
-  border: 1px solid #ddd;
-  border-radius: 10px;
-  padding: 12px 16px;
-  transition: 0.2s ease-in-out;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
+.form-grid button {
+  grid-column: span 4;
 }
 
-.product-card:hover {
-  transform: translateY(-4px);
-  box-shadow: 0px 4px 14px rgba(0,0,0,0.1);
-}
-
-.product-info {
-  font-size: 16px;
-}
-
-.product-info .price {
-  margin-left: 10px;
-  font-weight: bold;
-  color: #009944;
-}
-
-/* Botón de eliminar */
-.delete-btn {
-  background: #ff4c4c;
-  color: white;
-  border: none;
-  padding: 6px 10px;
-  border-radius: 4px;
-  cursor: pointer;
-}
-
-.delete-btn:hover {
-  background: #d93636;
-}
-
+/* ===================== */
 /* NAVBAR */
+/* ===================== */
+
 .navbar {
-  background: #1e3a8a; 
+  background: #1e3a8a;
   padding: 12px 20px;
 }
 
@@ -235,21 +109,249 @@ section {
 }
 
 .nav-link:hover {
-  color: #dbeafe; 
+  color: #dbeafe;
 }
 
+/* ===================== */
+/* HOME – CATÁLOGO */
+/* ===================== */
 
-.main-content {
-  margin-top: 20px;
+.page-title {
+  font-size: 28px;
+  margin-bottom: 20px;
 }
 
-.form-grid {
+.cards-container {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: 16px;
+}
+
+/* Card base (HOME) */
+.product-card {
+  background: white;
+  border: 1px solid #ddd;
+  border-radius: 10px;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  transition: 0.2s ease-in-out;
+}
+
+.product-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0px 4px 14px rgba(0,0,0,0.1);
+}
+
+/* Header */
+.product-header .team {
+  font-size: 18px;
+  font-weight: 700;
+}
+
+.product-header .player {
+  font-size: 15px;
+  color: #666;
+}
+
+/* Meta info */
+.product-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px 10px;
+  font-size: 13px;
+}
+
+.product-meta span {
+  background: #f1f5f9;
+  padding: 4px 8px;
+  border-radius: 6px;
+  color: #555;
+}
+
+/* Detalles */
+.product-details {
+  display: flex;
+  justify-content: space-between;
+  font-size: 14px;
+}
+
+.product-details strong {
+  font-weight: 600;
+}
+
+/* Footer */
+.product-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.product-footer .price {
+  font-size: 18px;
+  font-weight: bold;
+  color: #009944;
+}
+
+/* ===================== */
+/* REALTIME PRODUCTS */
+/* ===================== */
+
+.products-list {
+  display: flex;
+  flex-direction: column;
   gap: 12px;
 }
 
-/* Botón ocupa toda la fila */
-.form-grid button {
-  grid-column: span 4;
+/* Card horizontal SOLO realtime */
+.product-card.realtime {
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 16px;
+}
+
+/* Info realtime */
+.product-info {
+  font-size: 16px;
+}
+
+.product-info .price {
+  margin-left: 10px;
+  font-weight: bold;
+  color: #009944;
+}
+
+/* ===================== */
+/* SECCIONES */
+/* ===================== */
+
+.subtitle {
+  font-size: 20px;
+  margin-bottom: 10px;
+  color: #333;
+}
+
+.realtime-section,
+.form-section {
+  margin-bottom: 25px;
+}
+
+/* ======== CART ======== */
+
+.cart-section {
+  background: white;
+  padding: 20px;
+  border-radius: 10px;
+}
+
+.cart-table {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.cart-header,
+.cart-row {
+  display: grid;
+  grid-template-columns: 2fr 1fr 1fr 1fr 1fr;
+  align-items: center;
+  gap: 10px;
+}
+
+.cart-header {
+  font-weight: bold;
+  border-bottom: 2px solid #ddd;
+  padding-bottom: 8px;
+}
+
+.cart-row {
+  padding: 10px 0;
+  border-bottom: 1px solid #eee;
+}
+
+.cart-product {
+  display: flex;
+  flex-direction: column;
+}
+
+.cart-player {
+  color: #666;
+  font-size: 14px;
+}
+
+.cart-price,
+.cart-quantity,
+.cart-subtotal {
+  font-size: 15px;
+}
+
+.cart-actions {
+  text-align: right;
+}
+
+.cart-footer {
+  margin-top: 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.cart-total {
+  font-size: 18px;
+}
+
+.total-price {
+  margin-left: 8px;
+  color: #009944;
+}
+
+.cart-buttons {
+  display: flex;
+  gap: 10px;
+}
+
+/* Botones */
+
+.primary-btn {
+  background: #0074D9;
+  color: white;
+  padding: 8px 16px;
+  border-radius: 6px;
+}
+
+.primary-btn:hover {
+  background: #005fa3;
+}
+
+.secondary-btn {
+  background: #ccc;
+  color: #222;
+  padding: 8px 16px;
+  border-radius: 6px;
+}
+
+.secondary-btn:hover {
+  background: #b3b3b3;
+}
+
+/* Carrito vacío */
+
+.empty-cart {
+  text-align: center;
+  font-size: 18px;
+  color: #555;
+}
+
+.empty-cart a {
+  display: inline-block;
+  margin-top: 10px;
+  color: #0074D9;
+  font-weight: bold;
+  text-decoration: none;
+}
+
+.empty-cart a:hover {
+  text-decoration: underline;
 }

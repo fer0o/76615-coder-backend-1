@@ -2,17 +2,48 @@
 
 <div class="cards-container">
   {{#each products}}
-    <div class="product-card">
-      <div class="product-text">
-        <strong class="team">{{team}}</strong>
-        <span class="dash">—</span>
-        <span class="player">{{player}}</span>
+  <div class="product-card">
 
-        <div class="details">
-          <span class="season">{{season}}</span>
-          <span class="price">${{price}}</span>
-        </div>
-      </div>
+    <!-- Header -->
+    <div class="product-header">
+      <strong class="team">{{team}}</strong>
+      <span class="player">{{player}}</span>
     </div>
+
+    <!-- Info secundaria -->
+    <div class="product-meta">
+      <span class="league">{{league}}</span>
+      <span class="season">{{season}}</span>
+      <span class="category">{{category}}</span>
+    </div>
+
+    <!-- Detalles -->
+    <div class="product-details">
+      <span class="sizes">
+        <strong>Tallas:</strong> {{sizes}}
+      </span>
+      <span class="stock">
+        <strong>Stock:</strong> {{stock}}
+      </span>
+    </div>
+
+    <!-- Footer -->
+    <div class="product-footer">
+      <span class="price">${{price}}</span>
+
+      {{#if stock}}
+      <button class="add-btn" data-product-id="{{_id}}">
+        Agregar al carrito
+      </button>
+      {{else}}
+      <button class="add-btn disabled" disabled>
+        Sin stock
+      </button>
+      {{/if}}
+    </div>
+
+  </div>
   {{/each}}
 </div>
+
+<script src="/public/js/boton-home.js"></script>

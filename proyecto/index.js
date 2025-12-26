@@ -20,11 +20,9 @@ const productManager = new ProductManagerMongo();
 const server = http.createServer(app);
 const io = new Server(server);
 
-// =======================
 // SOCKET.IO
-// =======================
 io.on("connection", async (socket) => {
-  console.log("🟣 Cliente conectado (Realtime)");
+  console.log("Cliente conectado (Realtime)");
 
   // 🔹 Enviar productos actuales
   const products = await productManager.getProducts();
@@ -72,5 +70,5 @@ io.on("connection", async (socket) => {
 
 const PORT = 3000;
 server.listen(PORT, () => {
-  console.log(`🚀 Servidor HTTP + WS corriendo en puerto ${PORT}`);
+  console.log(`Servidor HTTP + WS corriendo en puerto ${PORT}`);
 });
