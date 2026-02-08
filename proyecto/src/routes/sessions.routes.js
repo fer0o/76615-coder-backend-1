@@ -6,6 +6,8 @@ const CartModel = require("../models/Cart.model");
 const { createHash, isValidPassword } = require("../utils/hash");
 const { generateToken } = require("../utils/jwt");
 
+const passport = require("passport");
+
 // POST /api/sessions/register
 router.post("/register", async (req, res) => {
   try {
@@ -93,5 +95,15 @@ router.post("/login", async (req, res) => {
         return res.status(500).json({ status: "error", message: "Error interno del servidor" });
     }
 });
+
+// GET /api/sessions/current
+router.get("/current", passport.authenticate("jwt", { session: false }),
+    (req, res) => {
+        return res.json({
+            status: "success",
+            payload: req.user
+        })
+    }
+);
 
 module.exports = router;
