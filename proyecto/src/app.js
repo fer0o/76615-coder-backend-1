@@ -5,8 +5,15 @@ const app = express();
 const { paths } = require('./config/config');
 const handlebars = require('express-handlebars');
 
+const passport = require("passport");
+const initializePassport = require("./config/passport.config");
+
 // Middleware
 app.use(express.json());
+
+//Passport antes de las rutas
+initializePassport();
+app.use(passport.initialize());
 
 // Rutas API
 const apiRoutes = require('./routes/index');
