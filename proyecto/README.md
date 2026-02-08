@@ -1,7 +1,8 @@
 FutbolStore API ⚽🛒
 
-Curso 76615 – Backend 1 | CoderHouse
-Proyecto Final – Node.js, Express y MongoDB
+<!-- Curso 76615 – Backend 1 | CoderHouse -->
+Curso Backend 2 Comisión 97050 | CoderHouse
+Proyecto Final – Node.js, Express y MongoDB, con autenticación y autorización con JWT y Passport
 
 ---
 
@@ -25,9 +26,13 @@ proyecto/
 │
 ├── src/
 │   ├── app.js
+│   ├── config/
+│   │   ├── config.js
+│   │   └── passport.config.js
 │   ├── routes/
 │   │   ├── products.routes.js
 │   │   ├── carts.routes.js
+│   │   ├── sessions.routes.js
 │   │   └── views.router.js
 │   │
 │   ├── managersMongo/
@@ -36,23 +41,20 @@ proyecto/
 │   │
 │   ├── models/
 │   │   ├── Product.model.js
-│   │   └── Cart.model.js
+│   │   ├── Cart.model.js
+│   │   └── User.model.js
 │   │
-│   └── views/
+│   ├── utils/
+│   │   ├── hash.js
+│   │   └── jwt.js
+│   │
+│   ├── views/
 │       ├── layouts/
 │       ├── pages/
-│       │   ├── home.hbs
-│       │   ├── cart.hbs
-│       │   └── realTimeProducts.hbs
 │       └── partials/
-│           └── nav.hbs
 │
 ├── public/
 │   └── js/
-│       ├── realTime.js
-│       ├── boton-home.js
-│       └── cart.js
-│
 ├── index.js
 ├── package.json
 ├── .env
@@ -73,9 +75,14 @@ El servidor estará corriendo en `http://localhost:3000`
 
 ## Variables de entorno
 
-El proyecto requiere un archivo `.env` en la raíz del proyecto 
+El proyecto requiere un archivo `.env` en la raíz del proyecto con las siguientes variables:
 
 # Endpoints disponibles
+
+## Autenticación y Sesiones
+- **POST /api/sessions/register**: Registra un nuevo usuario (crea carrito automáticamente)
+- **POST /api/sessions/login**: Autentica usuario y devuelve token JWT
+- **GET /api/sessions/current**: Devuelve datos del usuario logueado (Requiere Header `Authorization: Bearer <TOKEN>`)
 
 ## Productos
 
@@ -89,7 +96,6 @@ Crea un nuevo producto
 Actualiza un producto existente
 	•	DELETE /api/products/:pid
 Elimina un producto
-
 
 # Ejemplo de producto
 ```json
