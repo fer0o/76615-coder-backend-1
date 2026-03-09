@@ -1,16 +1,20 @@
-const express = require('express');
+const express = require("express");
 const router = express.Router();
 const mongoose = require("mongoose");
 // const CartManager = require('../managers/CartManager');
 //ahora usamos el manager de MongoDB
-const CartManagerMongo = require('../managersMongo/CartManagerMongo');
-const {authenticateCurrent, authorizeRoles, authorizeCartOwner} = require("../middlewares/auth.middleware")
+const CartManagerMongo = require("../managersMongo/CartManagerMongo");
+const {
+  authenticateCurrent,
+  authorizeRoles,
+  authorizeCartOwner,
+} = require("../middlewares/auth.middleware");
 
-const cartDAO = require ("../dao/mongo/CartMongoDAO")
-const productDAO = require ("../dao/mongo/ProductMongoDAO")
-const ticketDAO = require ("../dao/mongo/TicketMongoDAO")
-
-
+const {
+  cartRepository,
+  productRepository,
+  ticketRepository,
+} = require("../repositories");
 
 //helper para generar el codigo del ticket
 const generateTicketCode = () =>
@@ -22,136 +26,141 @@ const generateTicketCode = () =>
 const cartManager = new CartManagerMongo();
 
 //Ruta para crear un nuevo carrito
-router.post ('/',
+router.post(
+  "/",
   authenticateCurrent,
   authorizeRoles("admin"),
-  async (req, res)=>{
-    try{
-        const newCart = await cartManager.createCart()
-        res.status(201).json({
-            message: 'Carrito creado exitosamente',
-            cart: newCart
-        })
+  async (req, res) => {
+    try {
+      const newCart = await cartManager.createCart();
+      res.status(201).json({
+        message: "Carrito creado exitosamente",
+        cart: newCart,
+      });
+    } catch (error) {
+      console.error("Error al crear el carrito:", error);
+      res.status(500).json({ error: "Error al crear el carrito" });
     }
-    catch(error){
-        console.error('Error al crear el carrito:', error);
-        res.status(500).json({error: 'Error al crear el carrito'});
-    }
-})
+  },
+);
 
 //Ruta para obtener un carrito por su ID admin y user
 router.get(
-  '/:cid',
+  "/:cid",
   authenticateCurrent,
   authorizeRoles("user", "admin"),
   authorizeCartOwner,
-  async (req, res)=>{
-    try{
-        const cid = req.params.cid
+  async (req, res) => {
+    try {
+      const cid = req.params.cid;
 
-        const cart = await cartManager.getCartById (cid);
-        //si no existe el carrito
-        if(!cart){
-            return res.status(404).json({error: 'Carrito no encontrado'});
-        }
-        //si existe el carrito
-        res.status(200).json(cart);
+      const cart = await cartManager.getCartById(cid);
+      //si no existe el carrito
+      if (!cart) {
+        return res.status(404).json({ error: "Carrito no encontrado" });
+      }
+      //si existe el carrito
+      res.status(200).json(cart);
+    } catch (error) {
+      console.error("Error al obtener el carrito por ID:", error);
+      res.status(500).json({ error: "Error al obtener el carrito por ID " });
     }
-    catch(error){
-        console.error('Error al obtener el carrito por ID:', error);
-        res.status(500).json({error: 'Error al obtener el carrito por ID '});   
-    }
-})
+  },
+);
 //ruta para agregar un producto (solo user)
 router.post(
-  '/:cid/product/:pid',
+  "/:cid/product/:pid",
   authenticateCurrent,
   authorizeRoles("user"),
   authorizeCartOwner,
   async (req, res) => {
-  try {
-    const { cid, pid } = req.params;
+    try {
+      const { cid, pid } = req.params;
 
-    const updatedCart = await cartManager.addProductToCart(cid, pid);
+      const updatedCart = await cartManager.addProductToCart(cid, pid);
 
-    if (!updatedCart) {
-      return res.status(404).json({ error: 'Carrito no encontrado' });
+      if (!updatedCart) {
+        return res.status(404).json({ error: "Carrito no encontrado" });
+      }
+
+      res.status(200).json({
+        message: `Producto agregado al carrito`,
+        cart: updatedCart,
+      });
+    } catch (error) {
+      console.error("Error al agregar producto al carrito:", error.message);
+      res.status(500).json({
+        error: "Error al agregar producto al carrito",
+        details: error.message,
+      });
     }
-
-    res.status(200).json({
-      message: `Producto agregado al carrito`,
-      cart: updatedCart
-    });
-
-  } catch (error) {
-    console.error('Error al agregar producto al carrito:', error.message);
-    res.status(500).json({
-      error: 'Error al agregar producto al carrito',
-      details: error.message
-    });
-  }
-});
+  },
+);
 
 // DELETE: eliminar un producto específico del carrito (solo user)
 router.delete(
-  '/:cid/product/:pid',
+  "/:cid/product/:pid",
   authenticateCurrent,
   authorizeRoles("user"),
   authorizeCartOwner,
   async (req, res) => {
-  try {
-    const { cid, pid } = req.params;
+    try {
+      const { cid, pid } = req.params;
 
-    const updatedCart = await cartManager.deleteProductFromCart(cid, pid);
+      const updatedCart = await cartManager.deleteProductFromCart(cid, pid);
 
-    if (!updatedCart) {
-      return res.status(404).json({
-        error: 'Carrito o producto no encontrado'
+      if (!updatedCart) {
+        return res.status(404).json({
+          error: "Carrito o producto no encontrado",
+        });
+      }
+
+      res.status(200).json({
+        message: "Producto eliminado del carrito",
+        cart: updatedCart,
+      });
+    } catch (error) {
+      console.error(
+        "Error en DELETE /api/carts/:cid/product/:pid:",
+        error.message,
+      );
+      res.status(500).json({
+        error: "Error al eliminar el producto del carrito",
       });
     }
-
-    res.status(200).json({
-      message: 'Producto eliminado del carrito',
-      cart: updatedCart
-    });
-
-  } catch (error) {
-    console.error('Error en DELETE /api/carts/:cid/product/:pid:', error.message);
-    res.status(500).json({
-      error: 'Error al eliminar el producto del carrito'
-    });
-  }
-});
+  },
+);
 
 // DELETE: vaciar completamente un carrito (solo user)
-router.delete('/:cid',
+router.delete(
+  "/:cid",
   authenticateCurrent,
   authorizeRoles("user"),
   authorizeCartOwner,
   async (req, res) => {
-  try {
-    const { cid } = req.params;
+    try {
+      const { cid } = req.params;
 
-    const clearedCart = await cartManager.clearCart(cid);
+      const clearedCart = await cartManager.clearCart(cid);
 
-    if (!clearedCart) {
-      return res.status(404).json({
-        error: 'Carrito no encontrado'
+      if (!clearedCart) {
+        return res.status(404).json({
+          error: "Carrito no encontrado",
+        });
+      }
+
+      res.status(200).json({
+        message: "Carrito vaciado correctamente",
+        cart: clearedCart,
+      });
+    } catch (error) {
+      console.error("Error en DELETE /api/carts/:cid:", error.message);
+      res.status(500).json({
+        error: "Error al vaciar el carrito",
       });
     }
-
-    res.status(200).json({
-      message: 'Carrito vaciado correctamente',
-      cart: clearedCart
-    });
-
-  } catch (error) {
-    console.error('Error en DELETE /api/carts/:cid:', error.message);
-    res.status(500).json({
-      error: 'Error al vaciar el carrito'
-    });
-  }
-});
+  },
+);
 
 // POST: comprar carrito (compra completa o parcial)
 router.post(
@@ -167,7 +176,7 @@ router.post(
       session = await mongoose.startSession();
       session.startTransaction();
 
-      const cart = await cartDAO.findByIdPopulated(cid, { session });
+      const cart = await cartRepository.findByIdPopulated(cid, { session });
 
       if (!cart) {
         await session.abortTransaction();
@@ -243,7 +252,8 @@ router.post(
         await session.abortTransaction();
         return res.status(409).json({
           status: "error",
-          message: "No hay productos con stock suficiente para completar la compra",
+          message:
+            "No hay productos con stock suficiente para completar la compra",
           productsNotPurchased: notPurchasable,
         });
       }
@@ -253,10 +263,10 @@ router.post(
       const failedAfterStockUpdate = [];
 
       for (const item of purchasable) {
-        const updated = await productDAO.decreaseStockIfAvailable(
+        const updated = await productRepository.decreaseStockIfAvailable(
           item.productId,
           item.quantity,
-          { session }
+          { session },
         );
 
         if (!updated) {
@@ -275,23 +285,30 @@ router.post(
         await session.abortTransaction();
         return res.status(409).json({
           status: "error",
-          message: "No hay productos con stock suficiente para completar la compra",
+          message:
+            "No hay productos con stock suficiente para completar la compra",
           productsNotPurchased: [...notPurchasable, ...failedAfterStockUpdate],
         });
       }
 
-      const productsNotPurchased = [...notPurchasable, ...failedAfterStockUpdate];
+      const productsNotPurchased = [
+        ...notPurchasable,
+        ...failedAfterStockUpdate,
+      ];
 
       const finalAmount = purchasedAfterStockUpdate.reduce(
         (acc, item) => acc + item.price * item.quantity,
-        0
+        0,
       );
 
-      const ticket = await ticketDAO.create({
-        code: generateTicketCode(),
-        amount: finalAmount,
-        purchaser: req.user.email,
-      }, { session });
+      const ticket = await ticketRepository.create(
+        {
+          code: generateTicketCode(),
+          amount: finalAmount,
+          purchaser: req.user.email,
+        },
+        { session },
+      );
 
       // Dejar en carrito solo los no comprados
       const remainingProducts = productsNotPurchased.map((item) => ({
@@ -299,13 +316,14 @@ router.post(
         quantity: item.quantity,
       }));
 
-      await cartDAO.replaceProducts(cid, remainingProducts, { session });
+      await cartRepository.replaceProducts(cid, remainingProducts, { session });
 
       await session.commitTransaction();
 
       return res.status(200).json({
         status: "success",
-        purchaseStatus: productsNotPurchased.length === 0 ? "complete" : "partial",
+        purchaseStatus:
+          productsNotPurchased.length === 0 ? "complete" : "partial",
         ticket,
         productsPurchased: purchasedAfterStockUpdate,
         productsNotPurchased,
@@ -324,12 +342,7 @@ router.post(
         session.endSession();
       }
     }
-  }
+  },
 );
-
-
-
-
-
 
 module.exports = router;

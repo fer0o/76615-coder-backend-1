@@ -1,10 +1,10 @@
-const CartModel = require("../models/Cart.model");
+const { cartRepository } = require("../repositories");
 
 class CartManagerMongo {
   async createCart() {
     try {
-      const newCart = await CartModel.create({ products: [] });
-      return newCart.toObject();
+      const newCart = await cartRepository.create({ products: [] });
+      return newCart;
     } catch (error) {
       console.error("Error al crear carrito (Mongo):", error);
       throw error;
@@ -13,9 +13,7 @@ class CartManagerMongo {
 
   async getCartById(cid) {
     try {
-      const cart = await CartModel.findById(cid)
-        .populate("products.product")
-        .lean();
+      const cart = await cartRepository.findByIdPopulated(cid);
 
       return cart || null;
     } catch (error) {
@@ -26,30 +24,8 @@ class CartManagerMongo {
 
   async addProductToCart(cid, pid) {
     try {
-      const cart = await CartModel.findById(cid);
-
-      if (!cart) {
-        return null;
-      }
-
-      const productIndex = cart.products.findIndex(
-        (p) => p.product.toString() === pid
-      );
-
-      if (productIndex !== -1) {
-        // Producto ya existe → aumentar cantidad
-        cart.products[productIndex].quantity += 1;
-      } else {
-        // Producto no existe → agregar
-        cart.products.push({
-          product: pid,
-          quantity: 1,
-        });
-      }
-
-      await cart.save();
-
-      return cart.toObject();
+      const updatedCart = await cartRepository.addProduct(cid, pid);
+      return updatedCart || null;
     } catch (error) {
       console.error("Error al agregar producto al carrito (Mongo):", error);
       throw error;
@@ -58,14 +34,13 @@ class CartManagerMongo {
 
   async updateProductQuantity(cid, pid, quantity) {
     try {
-      const cart = await CartModel.findById(cid);
-
+      const cart = await cartRepository.findById(cid);
       if (!cart) {
         return null;
       }
 
       const productIndex = cart.products.findIndex(
-        (p) => p.product.toString() === pid
+        (p) => String(p.product) === String(pid),
       );
 
       if (productIndex === -1) {
@@ -74,37 +49,23 @@ class CartManagerMongo {
 
       cart.products[productIndex].quantity = quantity;
 
-      await cart.save();
-
-      return cart.toObject();
+      const updatedCart = await cartRepository.replaceProducts(
+        cid,
+        cart.products,
+      );
+      return updatedCart;
     } catch (error) {
       console.error(
         "Error al actualizar cantidad del producto (Mongo):",
-        error
+        error,
       );
       throw error;
     }
   }
   async deleteProductFromCart(cid, pid) {
     try {
-      const cart = await CartModel.findById(cid);
-
-      if (!cart) {
-        return null;
-      }
-
-      const initialLength = cart.products.length;
-
-      cart.products = cart.products.filter((p) => p.product.toString() !== pid);
-
-      // Si no se eliminó nada, el producto no existía
-      if (cart.products.length === initialLength) {
-        return null;
-      }
-
-      await cart.save();
-
-      return cart.toObject();
+      const updatedCart = await cartRepository.removeProduct(cid, pid);
+      return updatedCart || null;
     } catch (error) {
       console.error("Error al eliminar producto del carrito (Mongo):", error);
       throw error;
@@ -113,16 +74,8 @@ class CartManagerMongo {
 
   async clearCart(cid) {
     try {
-      const cart = await CartModel.findById(cid);
-
-      if (!cart) {
-        return null;
-      }
-
-      cart.products = [];
-      await cart.save();
-
-      return cart.toObject();
+      const clearedCart = await cartRepository.clear(cid);
+      return clearedCart || null;
     } catch (error) {
       console.error("Error al vaciar carrito (Mongo):", error);
       throw error;
