@@ -26,7 +26,7 @@ class CartMongoDAO {
     if (!cart) return null;
 
     const productIndex = cart.products.findIndex(
-      (p) => String(p.product) === String(pid)
+      (p) => String(p.product) === String(pid),
     );
 
     if (productIndex === -1) {
@@ -45,7 +45,7 @@ class CartMongoDAO {
 
     const initialLength = cart.products.length;
     cart.products = cart.products.filter(
-      (p) => String(p.product) !== String(pid)
+      (p) => String(p.product) !== String(pid),
     );
 
     if (cart.products.length === initialLength) return null;
@@ -58,7 +58,7 @@ class CartMongoDAO {
     const cart = await CartModel.findByIdAndUpdate(
       cid,
       { $set: { products: [] } },
-      { new: true }
+      { new: true },
     ).lean();
 
     return cart;
@@ -70,7 +70,7 @@ class CartMongoDAO {
     const query = CartModel.findByIdAndUpdate(
       cid,
       { $set: { products } },
-      { new: true, runValidators: true }
+      { new: true, runValidators: true },
     );
 
     if (session) {
