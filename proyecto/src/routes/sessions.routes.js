@@ -127,15 +127,15 @@ router.post("/login", async (req, res) => {
 // GET /api/sessions/current
 router.get(
   "/current",
-  passport.authenticate("jwt", { session: false }),
+  passport.authenticate("current", { session: false }),
   (req, res) => {
     const currentUser = new CurrentUserDTO(req.user);
-
     return res.json({
       status: "success",
       payload: currentUser,
     });
   }
 );
+
 
 module.exports = router;

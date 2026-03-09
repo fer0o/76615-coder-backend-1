@@ -2,24 +2,30 @@ const ProductModel = require("../../models/Product.model");
 
 class ProductMongoDAO {
     async findAllPaginated({ limit = 10, page = 1 } = {}) {
-        const skip = (page - 1) * limit;
+        const parsedLimit = Number(limit);
+        const parsedPage = Number(page);
 
-        const products = await ProductModel.find().skip(skip).limit(limit).lean();
+        const safeLimit = Number.isInteger(parsedLimit) && parsedLimit > 0 ? parsedLimit : 10;
+        const safePage = Number.isInteger(parsedPage) && parsedPage > 0 ? parsedPage : 1;
+
+        const skip = (safePage - 1) * safeLimit;
+        const products = await ProductModel.find().skip(skip).limit(safeLimit).lean();
         const totalProducts = await ProductModel.countDocuments();
-        const totalPages = Math.ceil(totalProducts / limit);
-
+        const totalPages = Math.max(1, Math.ceil(totalProducts / safeLimit));
+        
         return {
             payload: products,
             pagination: {
                 totalProducts,
                 totalPages,
-                page,
-                limit,
-                hasPrevPage: page > 1,
-                hasNextPage: page < totalPages,
+                page: safePage,
+                limit: safeLimit,
+                hasPrevPage: safePage > 1,
+                hasNextPage: safePage < totalPages,
             },
         };
     }
+
 
     async findById(pid) {
         return ProductModel.findById(pid).lean();
