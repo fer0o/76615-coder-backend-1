@@ -1,8 +1,7 @@
 const express = require("express");
 const router = express.Router();
 
-const userDAO = require("../dao/mongo/UserMongoDAO");
-const cartDAO = require("../dao/mongo/CartMongoDAO");
+const { userRepository, cartRepository } = require("../repositories");
 const CurrentUserDTO = require("../dto/users/CurrentUserDTO");
 
 const { createHash, isValidPassword } = require("../utils/hash");
@@ -10,12 +9,11 @@ const { generateToken } = require("../utils/jwt");
 
 const passport = require("passport");
 
-const crypto = require ("crypto")
-const {sendResetPasswordEmail} = require ("../utils/mailer")
+const crypto = require("crypto");
+const { sendResetPasswordEmail } = require("../utils/mailer");
 
 const hashResetToken = (token) =>
   crypto.createHash("sha256").update(token).digest("hex");
-
 
 // POST /api/sessions/register
 router.post("/register", async (req, res) => {
@@ -42,7 +40,7 @@ router.post("/register", async (req, res) => {
       });
     }
 
-    const existingUser = await userDAO.findByEmail(email);
+    const existingUser = await userRepository.findByEmail(email);
     if (existingUser) {
       return res.status(409).json({
         status: "error",
@@ -50,9 +48,9 @@ router.post("/register", async (req, res) => {
       });
     }
 
-    const newCart = await cartDAO.create({ products: [] });
+    const newCart = await cartRepository.create({ products: [] });
 
-    const newUser = await userDAO.create({
+    const newUser = await userRepository.create({
       first_name,
       last_name,
       email,
@@ -99,7 +97,7 @@ router.post("/login", async (req, res) => {
       });
     }
 
-    const user = await userDAO.findByEmail(email);
+    const user = await userRepository.findByEmail(email);
     if (!user) {
       return res.status(401).json({
         status: "error",
@@ -141,7 +139,7 @@ router.get(
       status: "success",
       payload: currentUser,
     });
-  }
+  },
 );
 
 // POST /api/sessions/forgot-password
@@ -162,7 +160,7 @@ router.post("/forgot-password", async (req, res) => {
       });
     }
 
-    const user = await userDAO.findByEmail(email);
+    const user = await userRepository.findByEmail(email);
 
     // No revelar si existe o no el correo
     if (!user) {
@@ -179,10 +177,14 @@ router.post("/forgot-password", async (req, res) => {
     const hashedToken = hashResetToken(rawToken);
     const expiresAt = new Date(Date.now() + 60 * 60 * 1000); // 1h
 
-    await userDAO.setResetToken(user._id || user.id, hashedToken, expiresAt);
+    await userRepository.setResetToken(
+      user._id || user.id,
+      hashedToken,
+      expiresAt,
+    );
 
     const resetLink = `${process.env.RESET_PASSWORD_URL}?token=${encodeURIComponent(
-      rawToken
+      rawToken,
     )}`;
 
     // si falla el mail, igual responder genérico
@@ -201,7 +203,6 @@ router.post("/forgot-password", async (req, res) => {
     return res.status(200).json(genericResponse);
   }
 });
-
 
 // POST /api/sessions/reset-password
 router.post("/reset-password", async (req, res) => {
@@ -227,7 +228,7 @@ router.post("/reset-password", async (req, res) => {
 
     // El token se busca hasheado (no se guarda en texto plano)
     const hashedToken = hashResetToken(token);
-    const user = await userDAO.findByResetToken(hashedToken);
+    const user = await userRepository.findByResetToken(hashedToken);
 
     if (!user) {
       return res.status(400).json({
@@ -247,9 +248,9 @@ router.post("/reset-password", async (req, res) => {
 
     const newHashedPassword = createHash(newPassword);
 
-    await userDAO.updatePasswordAndClearReset(
+    await userRepository.updatePasswordAndClearReset(
       user._id || user.id,
-      newHashedPassword
+      newHashedPassword,
     );
 
     return res.status(200).json({
@@ -264,10 +265,5 @@ router.post("/reset-password", async (req, res) => {
     });
   }
 });
-
-
-
-
-
 
 module.exports = router;
