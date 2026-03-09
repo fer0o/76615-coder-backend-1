@@ -6,7 +6,7 @@ const userDAO = require("../dao/mongo/UserMongoDAO");
 
 const initializePassport = () => {
     passport.use(
-        "jwt",
+        "current",
         new JWTStrategy(
             {
                 jwtFromRequest: ExtractJWT.fromAuthHeaderAsBearerToken(),

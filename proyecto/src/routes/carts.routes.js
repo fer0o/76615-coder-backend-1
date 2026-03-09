@@ -3,6 +3,7 @@ const router = express.Router();
 // const CartManager = require('../managers/CartManager');
 //ahora usamos el manager de MongoDB
 const CartManagerMongo = require('../managersMongo/CartManagerMongo');
+const {authenticateCurrent, authorizeRoles, authorizeCartOwner} = require("../middlewares/auth.middleware")
 
 
 //instancia del manager
@@ -11,7 +12,10 @@ const CartManagerMongo = require('../managersMongo/CartManagerMongo');
 const cartManager = new CartManagerMongo();
 
 //Ruta para crear un nuevo carrito
-router.post ('/', async (req, res)=>{
+router.post ('/',
+  authenticateCurrent,
+  authorizeRoles("admin"),
+  async (req, res)=>{
     try{
         const newCart = await cartManager.createCart()
         res.status(201).json({
@@ -25,8 +29,13 @@ router.post ('/', async (req, res)=>{
     }
 })
 
-//Ruta para obtener un carrito por su ID
-router.get('/:cid', async (req, res)=>{
+//Ruta para obtener un carrito por su ID admin y user
+router.get(
+  '/:cid',
+  authenticateCurrent,
+  authorizeRoles("user", "admin"),
+  authorizeCartOwner,
+  async (req, res)=>{
     try{
         const cid = req.params.cid
 
@@ -43,8 +52,13 @@ router.get('/:cid', async (req, res)=>{
         res.status(500).json({error: 'Error al obtener el carrito por ID '});   
     }
 })
-//ruta para agregar un producto a un carrito por sus IDs con mongoDB
-router.post('/:cid/product/:pid', async (req, res) => {
+//ruta para agregar un producto (solo user)
+router.post(
+  '/:cid/product/:pid',
+  authenticateCurrent,
+  authorizeRoles("user"),
+  authorizeCartOwner,
+  async (req, res) => {
   try {
     const { cid, pid } = req.params;
 
@@ -68,8 +82,13 @@ router.post('/:cid/product/:pid', async (req, res) => {
   }
 });
 
-// DELETE: eliminar un producto específico del carrito
-router.delete('/:cid/product/:pid', async (req, res) => {
+// DELETE: eliminar un producto específico del carrito (solo user)
+router.delete(
+  '/:cid/product/:pid',
+  authenticateCurrent,
+  authorizeRoles("user"),
+  authorizeCartOwner,
+  async (req, res) => {
   try {
     const { cid, pid } = req.params;
 
@@ -94,8 +113,12 @@ router.delete('/:cid/product/:pid', async (req, res) => {
   }
 });
 
-// DELETE: vaciar completamente un carrito
-router.delete('/:cid', async (req, res) => {
+// DELETE: vaciar completamente un carrito (solo user)
+router.delete('/:cid',
+  authenticateCurrent,
+  authorizeRoles("user"),
+  authorizeCartOwner,
+  async (req, res) => {
   try {
     const { cid } = req.params;
 

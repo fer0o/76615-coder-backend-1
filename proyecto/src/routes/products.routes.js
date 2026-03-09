@@ -4,6 +4,8 @@ const router = express.Router();
 //ahora usamos el manager de MongoDB
 const ProductManagerMongo = require("../managersMongo/ProductManagerMongo");
 
+const {authenticateCurrent, authorizeRoles} = require("../middlewares/auth.middleware")
+
 //instancia del manager
 // const productManager = new ProductManager();
 //ahora usamos el manager de MongoDB
@@ -44,8 +46,12 @@ router.get("/:pid", async (req, res) => {
   }
 });
 
-//Ruta post para agregar un nuevo producto
-router.post("/", async (req, res) => {
+//Ruta post para agregar un nuevo producto (solo admin)
+router.post(
+  "/",
+  authenticateCurrent,
+  authorizeRoles("admin"),
+  async (req, res) => {
   try {
     //body esperado para este endpoint
     /*
@@ -77,7 +83,7 @@ router.post("/", async (req, res) => {
       "sizes",
     ];
     const missingFields = requieredFields.filter(
-      (field) => !productData[field]
+      (field) => productData[field] === undefined || productData[field] === null
     );
     if (missingFields.length > 0) {
       return res.status(400).json({
@@ -97,8 +103,12 @@ router.post("/", async (req, res) => {
   }
 });
 
-//Put para actualizar un producto existente (MongoDB)
-router.put("/:pid", async (req, res) => {
+//Put para actualizar un producto existente (solo admin)
+router.put(
+  "/:pid",
+  authenticateCurrent,
+  authorizeRoles("admin"),
+  async(req, res) => {
   try {
     const pid = req.params.pid;
     const updateFields = req.body;
@@ -129,10 +139,14 @@ router.put("/:pid", async (req, res) => {
   }
 });
 
-// DELETE para eliminar un producto por su ID (Mongo)
-router.delete("/:pid", async (req, res) => {
+// DELETE para eliminar un producto (solo admin)
+router.delete(
+  "/:pid",
+  authenticateCurrent,
+  authorizeRoles("admin"),
+  async(req,res) => {
   try {
-    const pid = req.params.pid; // 👈 Mongo ID como string
+    const pid = req.params.pid; 
 
     const result = await productManager.deleteProduct(pid);
 
