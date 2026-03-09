@@ -10,8 +10,15 @@ class CartMongoDAO {
     return CartModel.findById(cid).lean();
   }
 
-  async findByIdPopulated(cid) {
-    return CartModel.findById(cid).populate("products.product").lean();
+  async findByIdPopulated(cid, options = {}) {
+    const { session } = options;
+    const query = CartModel.findById(cid).populate("products.product");
+
+    if (session) {
+      query.session(session);
+    }
+
+    return query.lean();
   }
 
   async addProduct(cid, pid) {
@@ -58,12 +65,19 @@ class CartMongoDAO {
   }
 
   // clave para purchase: dejar en carrito solo los no comprados
-  async replaceProducts(cid, products) {
-    const cart = await CartModel.findByIdAndUpdate(
+  async replaceProducts(cid, products, options = {}) {
+    const { session } = options;
+    const query = CartModel.findByIdAndUpdate(
       cid,
       { $set: { products } },
       { new: true, runValidators: true }
-    ).lean();
+    );
+
+    if (session) {
+      query.session(session);
+    }
+
+    const cart = await query.lean();
 
     return cart;
   }

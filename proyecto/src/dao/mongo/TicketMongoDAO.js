@@ -1,8 +1,10 @@
 const TicketModel = require("../../models/Ticket.model");
 
 class TicketMongoDAO {
-    async create( ticketData ) {
-        const ticket = await TicketModel.create(ticketData);
+    async create(ticketData, options = {}) {
+        const { session } = options;
+        const ticket = new TicketModel(ticketData);
+        await ticket.save({ session });
         return ticket.toObject();
     }
 

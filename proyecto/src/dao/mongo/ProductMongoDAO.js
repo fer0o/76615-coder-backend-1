@@ -42,13 +42,44 @@ class ProductMongoDAO {
     }
 
     // para compra: actualizar stock exacto
-    async updateStockById(pid, newStock) {
-        return ProductModel.findByIdAndUpdate(
+    async updateStockById(pid, newStock, options = {}) {
+        const { session } = options;
+
+        const query = ProductModel.findByIdAndUpdate(
             pid,
             { $set: { stock: newStock } },
             { new: true, runValidators: true }
-        ).lean();
+        );
+
+        if (session) {
+            query.session(session);
+        }
+
+        return query.lean();
     }
+
+    async decreaseStockIfAvailable(pid, qty, options = {}) {
+        const { session } = options;
+
+        if (!Number.isInteger(qty) || qty <= 0) {
+            return null;
+        }
+
+        const query = ProductModel.findOneAndUpdate(
+            { _id: pid, stock: { $gte: qty } },
+            { $inc: { stock: -qty } },
+            { new: true }
+        );
+
+        if (session) {
+            query.session(session);
+        }
+
+        return query.lean();
+    }
+
 }
+
+
 
 module.exports = new ProductMongoDAO();
