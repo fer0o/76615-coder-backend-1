@@ -17,7 +17,11 @@ const userSchema = new mongoose.Schema({
         ref:"Cart",
         required:true
     },
-    role:{type:String, default:"user"},
+    role:{type:String, enum:["user", "admin"], default:"user"},
+
+    //Recovery password
+    resetPasswordToken: {type:String, default:null},
+    resetPasswordExpires: {type:Date, default:null},
 },
 {timestamps:true}
     

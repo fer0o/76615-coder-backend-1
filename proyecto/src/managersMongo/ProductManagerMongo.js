@@ -1,28 +1,16 @@
 // ProductManagerMongo.js
-const ProductModel = require("../models/Product.model");
+const { productRepository } = require("../repositories");
 
 class ProductManagerMongo {
   //pagination
   async getProducts({ limit = 10, page = 1 } = {}) {
     try {
-      const skip = (page - 1) * limit;
-
-      const products = await ProductModel.find().skip(skip).limit(limit).lean();
-
-      const totalProducts = await ProductModel.countDocuments();
-      const totalPages = Math.ceil(totalProducts / limit);
+      const result = await productRepository.findAllPaginated({ limit, page });
 
       return {
         status: "success",
-        payload: products,
-        pagination: {
-          totalProducts,
-          totalPages,
-          page,
-          limit,
-          hasPrevPage: page > 1,
-          hasNextPage: page < totalPages,
-        },
+        payload: result.payload,
+        pagination: result.pagination,
       };
     } catch (error) {
       console.error("Error al obtener productos (Mongo):", error);
@@ -32,7 +20,7 @@ class ProductManagerMongo {
 
   async getProductById(pid) {
     try {
-      const product = await ProductModel.findById(pid).lean();
+      const product = await productRepository.findById(pid);
       return product || null;
     } catch (error) {
       console.error("Error al obtener producto por ID (Mongo):", error);
@@ -42,10 +30,10 @@ class ProductManagerMongo {
 
   async addProduct(product) {
     try {
-      const newProduct = await ProductModel.create(product);
+      const newProduct = await productRepository.create(product);
       return {
         message: "Producto agregado exitosamente",
-        product: newProduct.toObject(),
+        product: newProduct,
       };
     } catch (error) {
       console.error("Error al agregar producto (Mongo):", error);
@@ -55,11 +43,10 @@ class ProductManagerMongo {
 
   async updateProduct(pid, updateFields) {
     try {
-      const updatedProduct = await ProductModel.findByIdAndUpdate(
+      const updatedProduct = await productRepository.updateById(
         pid,
         updateFields,
-        { new: true, runValidators: true }
-      ).lean();
+      );
 
       if (!updatedProduct) {
         throw new Error(`Producto con ID ${pid} no encontrado`);
@@ -77,7 +64,7 @@ class ProductManagerMongo {
 
   async deleteProduct(pid) {
     try {
-      const deletedProduct = await ProductModel.findByIdAndDelete(pid);
+      const deletedProduct = await productRepository.deleteById(pid);
 
       if (!deletedProduct) {
         throw new Error(`Producto con ID ${pid} no encontrado`);
