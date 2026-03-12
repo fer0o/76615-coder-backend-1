@@ -8,12 +8,7 @@ const { createHash, isValidPassword } = require("../utils/hash");
 const { generateToken } = require("../utils/jwt");
 
 const passport = require("passport");
-
-const crypto = require("crypto");
-const { sendResetPasswordEmail } = require("../utils/mailer");
-
-const hashResetToken = (token) =>
-  crypto.createHash("sha256").update(token).digest("hex");
+const sessionService = require("../services/SessionService");
 
 // POST /api/sessions/register
 router.post("/register", async (req, res) => {
@@ -144,119 +139,26 @@ router.get(
 
 // POST /api/sessions/forgot-password
 router.post("/forgot-password", async (req, res) => {
-  const genericResponse = {
-    status: "success",
-    message: "Si el email existe, se enviará un enlace de recuperación",
-  };
-
   try {
-    let { email } = req.body;
-    email = email?.trim().toLowerCase();
-
-    if (!email) {
-      return res.status(400).json({
-        status: "error",
-        message: "Email es requerido",
-      });
-    }
-
-    const user = await userRepository.findByEmail(email);
-
-    // No revelar si existe o no el correo
-    if (!user) {
-      return res.status(200).json(genericResponse);
-    }
-
-    if (!process.env.RESET_PASSWORD_URL) {
-      console.error("Falta RESET_PASSWORD_URL en .env");
-      return res.status(200).json(genericResponse);
-    }
-
-    // token real para link + token hasheado para DB
-    const rawToken = crypto.randomBytes(32).toString("hex");
-    const hashedToken = hashResetToken(rawToken);
-    const expiresAt = new Date(Date.now() + 60 * 60 * 1000); // 1h
-
-    await userRepository.setResetToken(
-      user._id || user.id,
-      hashedToken,
-      expiresAt,
-    );
-
-    const resetLink = `${process.env.RESET_PASSWORD_URL}?token=${encodeURIComponent(
-      rawToken,
-    )}`;
-
-    // si falla el mail, igual responder genérico
-    try {
-      await sendResetPasswordEmail({
-        to: user.email,
-        resetLink,
-      });
-    } catch (mailError) {
-      console.error("Error enviando mail de recuperación:", mailError.message);
-    }
-
-    return res.status(200).json(genericResponse);
+    const result = await sessionService.forgotPassword({ email: req.body?.email });
+    return res.status(result.statusCode).json(result.body);
   } catch (error) {
     console.error("Error en /forgot-password:", error.message);
-    return res.status(200).json(genericResponse);
+    return res.status(500).json({
+      status: "error",
+      message: "Error interno del servidor",
+    });
   }
 });
 
 // POST /api/sessions/reset-password
 router.post("/reset-password", async (req, res) => {
   try {
-    let { token, newPassword } = req.body;
-
-    token = token?.trim();
-    newPassword = newPassword?.trim();
-
-    if (!token || !newPassword) {
-      return res.status(400).json({
-        status: "error",
-        message: "Token y nueva contraseña son requeridos",
-      });
-    }
-
-    if (newPassword.length < 8) {
-      return res.status(400).json({
-        status: "error",
-        message: "La nueva contraseña debe tener al menos 8 caracteres",
-      });
-    }
-
-    // El token se busca hasheado (no se guarda en texto plano)
-    const hashedToken = hashResetToken(token);
-    const user = await userRepository.findByResetToken(hashedToken);
-
-    if (!user) {
-      return res.status(400).json({
-        status: "error",
-        message: "Token inválido o expirado",
-      });
-    }
-
-    // Evitar reutilizar la misma contraseña anterior
-    const sameAsOldPassword = isValidPassword(newPassword, user.password);
-    if (sameAsOldPassword) {
-      return res.status(400).json({
-        status: "error",
-        message: "La nueva contraseña no puede ser igual a la anterior",
-      });
-    }
-
-    const newHashedPassword = createHash(newPassword);
-
-    await userRepository.updatePasswordAndClearReset(
-      user._id || user.id,
-      newHashedPassword,
-    );
-
-    return res.status(200).json({
-      status: "success",
-      message: "Contraseña actualizada correctamente",
+    const result = await sessionService.resetPassword({
+      token: req.body?.token,
+      newPassword: req.body?.newPassword,
     });
+    return res.status(result.statusCode).json(result.body);
   } catch (error) {
     console.error("Error en /reset-password:", error.message);
     return res.status(500).json({
