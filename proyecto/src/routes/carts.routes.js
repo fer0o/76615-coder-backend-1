@@ -1,6 +1,5 @@
 const express = require("express");
 const router = express.Router();
-const mongoose = require("mongoose");
 // const CartManager = require('../managers/CartManager');
 //ahora usamos el manager de MongoDB
 const CartManagerMongo = require("../managersMongo/CartManagerMongo");
@@ -10,17 +9,7 @@ const {
   authorizeCartOwner,
 } = require("../middlewares/auth.middleware");
 
-const {
-  cartRepository,
-  productRepository,
-  ticketRepository,
-} = require("../repositories");
-
 const cartService = require("../services/CartService");
-
-//helper para generar el codigo del ticket
-const generateTicketCode = () =>
-  `TKT-${Date.now()}-${Math.random().toString(36).slice(2, 8).toUpperCase()}`;
 
 //instancia del manager
 // const cartManager = new CartManager();
