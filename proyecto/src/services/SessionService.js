@@ -1,12 +1,145 @@
 const crypto = require("crypto");
-const { userRepository } = require("../repositories");
+const { userRepository, cartRepository } = require("../repositories");
 const { createHash, isValidPassword } = require("../utils/hash");
+const { generateToken } = require("../utils/jwt");
 const { sendResetPasswordEmail } = require("../utils/mailer");
 
 const hashResetToken = (token) =>
   crypto.createHash("sha256").update(token).digest("hex");
 
 class SessionService {
+  async register({ first_name, last_name, email, age, password }) {
+    try {
+      const cleanFirstName = first_name?.trim();
+      const cleanLastName = last_name?.trim();
+      const cleanEmail = email?.trim().toLowerCase();
+      const parsedAge = Number(age);
+
+      if (
+        !cleanFirstName ||
+        !cleanLastName ||
+        !cleanEmail ||
+        age === undefined ||
+        !password ||
+        Number.isNaN(parsedAge)
+      ) {
+        return {
+          statusCode: 400,
+          body: {
+            status: "error",
+            message: "Faltan campos requeridos o la edad es inválida",
+          },
+        };
+      }
+
+      const existingUser = await userRepository.findByEmail(cleanEmail);
+      if (existingUser) {
+        return {
+          statusCode: 409,
+          body: {
+            status: "error",
+            message: "El email ya está registrado",
+          },
+        };
+      }
+
+      const newCart = await cartRepository.create({ products: [] });
+
+      const newUser = await userRepository.create({
+        first_name: cleanFirstName,
+        last_name: cleanLastName,
+        email: cleanEmail,
+        age: parsedAge,
+        password: createHash(password),
+        cart: newCart._id || newCart.id,
+        role: "user",
+      });
+
+      return {
+        statusCode: 201,
+        body: {
+          status: "success",
+          user: {
+            id: newUser._id || newUser.id,
+            first_name: newUser.first_name,
+            last_name: newUser.last_name,
+            email: newUser.email,
+            age: newUser.age,
+            cart: newUser.cart,
+            role: newUser.role,
+          },
+        },
+      };
+    } catch (error) {
+      console.error("Error en register:", error.message);
+      return {
+        statusCode: 500,
+        body: {
+          status: "error",
+          message: "Error interno del servidor",
+        },
+      };
+    }
+  }
+
+  async login({ email, password }) {
+    try {
+      const cleanEmail = email?.trim().toLowerCase();
+
+      if (!cleanEmail || !password) {
+        return {
+          statusCode: 400,
+          body: {
+            status: "error",
+            message: "Email y password son requeridos",
+          },
+        };
+      }
+
+      const user = await userRepository.findByEmail(cleanEmail);
+      if (!user) {
+        return {
+          statusCode: 401,
+          body: {
+            status: "error",
+            message: "Credenciales invalidas",
+          },
+        };
+      }
+
+      const isPasswordValid = isValidPassword(password, user.password);
+      if (!isPasswordValid) {
+        return {
+          statusCode: 401,
+          body: {
+            status: "error",
+            message: "Credenciales invalidas",
+          },
+        };
+      }
+
+      const token = generateToken(user);
+
+      return {
+        statusCode: 200,
+        body: {
+          status: "success",
+          message: "Login exitoso",
+          token,
+        },
+      };
+    } catch (error) {
+      console.error("Error en login:", error.message);
+      return {
+        statusCode: 500,
+        body: {
+          status: "error",
+          message: "Error interno del servidor",
+        },
+      };
+    }
+  }
+
   async forgotPassword({ email }) {
     const genericResponse = {
       status: "success",

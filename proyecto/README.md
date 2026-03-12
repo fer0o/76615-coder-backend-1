@@ -1,10 +1,7 @@
 FutbolStore API ⚽🛒
 
-<!-- Curso 76615 – Backend 1 | CoderHouse -->
-Curso Backend 2 Comisión 97050 | CoderHouse
-Proyecto Final – Node.js, Express y MongoDB, con autenticación y autorización con JWT y Passport
-
----
+Curso Backend 2 Comisión 97050 | CoderHouse  
+Proyecto final de ecommerce backend con Node.js, Express y MongoDB.
 
 ## Descripción
 Uno de mis hobbies favoritos es el fútbol y como fanático de este deporte me ha dado para coleccionar jerseys de futbol ya sea en una tienda física o en línea.
@@ -13,89 +10,102 @@ Una de las cosas que he notado es que las tiendas donde suelo comprar no tienen 
 
 FutbolStore API es un servidor backend desarrollado con Node.js y Express, diseñado para gestionar un catálogo de jerseys de fútbol y un sistema de carrito de compras.
 
-El proyecto nace de la necesidad de contar con un sistema simple pero funcional para tiendas pequeñas que no disponen de una plataforma formal de inventario, permitiendo:
-	•	Gestionar productos (CRUD completo)
-	•	Administrar carritos de compra
-	•	Visualizar productos y carritos mediante vistas con Handlebars
-	•	Persistir datos en MongoDB Atlas
+Incluye:
+- Autenticación con JWT + Passport (`current`)
+- Autorización por rol y ownership de carrito
+- Recuperación de contraseña por email
+- Compra con ticket, compra completa/parcial y control de stock
+- Vistas con Handlebars y realtime básico con Socket.IO
 
----
+## Arquitectura aplicada
+Se implementó arquitectura por capas:
 
-## Estructura del Proyecto primera entrega
+`Routes -> Services -> Repositories -> DAO -> MongoDB`
+
+- `DTO`: para no exponer datos sensibles en `/api/sessions/current`
+- `Repository`: separa acceso a datos de lógica de negocio
+- `Service`: concentra lógica de negocio compleja (`purchase`, `forgot/reset password`)
+
+## Estructura del proyecto (actual)
+```text
 proyecto/
-│
+├── index.js
 ├── src/
 │   ├── app.js
 │   ├── config/
 │   │   ├── config.js
 │   │   └── passport.config.js
+│   ├── dao/
+│   │   └── mongo/
+│   ├── dto/
+│   │   └── users/
+│   │       └── CurrentUserDTO.js
+│   ├── managersMongo/
+│   │   ├── ProductManagerMongo.js
+│   │   └── CartManagerMongo.js
+│   ├── middlewares/
+│   │   └── auth.middleware.js
+│   ├── models/
+│   │   ├── Product.model.js
+│   │   ├── Cart.model.js
+│   │   ├── User.model.js
+│   │   └── Ticket.model.js
+│   ├── repositories/
+│   │   ├── UserRepository.js
+│   │   ├── ProductRepository.js
+│   │   ├── CartRepository.js
+│   │   ├── TicketRepository.js
+│   │   └── index.js
 │   ├── routes/
 │   │   ├── products.routes.js
 │   │   ├── carts.routes.js
 │   │   ├── sessions.routes.js
 │   │   └── views.router.js
-│   │
-│   ├── managersMongo/
-│   │   ├── ProductManagerMongo.js
-│   │   └── CartManagerMongo.js
-│   │
-│   ├── models/
-│   │   ├── Product.model.js
-│   │   ├── Cart.model.js
-│   │   └── User.model.js
-│   │
+│   ├── services/
+│   │   ├── CartService.js
+│   │   └── SessionService.js
 │   ├── utils/
 │   │   ├── hash.js
-│   │   └── jwt.js
-│   │
-│   ├── views/
-│       ├── layouts/
-│       ├── pages/
-│       └── partials/
-│
-├── public/
-│   └── js/
-├── index.js
-├── package.json
-├── .env
+│   │   ├── jwt.js
+│   │   └── mailer.js
+│   └── views/
 └── README.md
+```
 
-## Instalación y Ejecución
-
-Clonar el repositorio
-cd proyecto
-
-## Instalar dependencias
+## Instalación y ejecución
+```bash
 npm install
-
-## Iniciar el servidor
 npm run dev
+```
 
-El servidor estará corriendo en `http://localhost:3000`
+Servidor:
+- `http://localhost:3000`
 
 ## Variables de entorno
+Crear un archivo `.env` en la raíz con:
 
-El proyecto requiere un archivo `.env` en la raíz del proyecto con las siguientes variables:
+```env
+MONGO_URL=
+JWT_SECRET=
+BCRYPT_SALT=10
 
-# Endpoints disponibles
+RESET_PASSWORD_URL=
 
-## Autenticación y Sesiones
-- **POST /api/sessions/register**: Registra un nuevo usuario (crea carrito automáticamente)
-- **POST /api/sessions/login**: Autentica usuario y devuelve token JWT
-- **GET /api/sessions/current**: Devuelve datos del usuario logueado (Requiere Header `Authorization: Bearer <TOKEN>`)
+MAIL_HOST=
+MAIL_PORT=
+MAIL_SECURE=false
+MAIL_USER=
+MAIL_PASS=
+MAIL_FROM=
+```
 
-## Productos
-
-	•	GET /api/products
-Obtiene productos con paginación (limit, page)
-	•	GET /api/products/:pid
-Obtiene un producto por ID
-	•	POST /api/products
-Crea un nuevo producto
-	•	PUT /api/products/:pid
-Actualiza un producto existente
-	•	DELETE /api/products/:pid
-Elimina un producto
+## Endpoints principales
+### Sesiones
+- `POST /api/sessions/register` Registra usuario y crea carrito
+- `POST /api/sessions/login` Login y retorno de JWT
+- `GET /api/sessions/current` Usuario actual con DTO (sin password)
+- `POST /api/sessions/forgot-password` Envía email de recuperación
+- `POST /api/sessions/reset-password` Restablece contraseña con token
 
 # Ejemplo de producto
 ```json
@@ -114,28 +124,47 @@ Elimina un producto
 }
 ```
 
-## Carritos
-	•	POST /api/carts
-Crea un nuevo carrito
-	•	GET /api/carts/:cid
-Obtiene un carrito por ID (con productos con populate)
-	•	POST /api/carts/:cid/product/:pid
-Agrega un producto al carrito
-	•	PUT /api/carts/:cid/product/:pid
-Actualiza la cantidad de un producto
-	•	DELETE /api/carts/:cid/product/:pid
-Elimina un producto del carrito
-	•	DELETE /api/carts/:cid
-Vacía completamente el carrito
-  
-🖥️ Vistas disponibles
-	•	/ → Home con listado de productos
-	•	/realtimeproducts → Productos en tiempo real (Socket.IO)
-	•	/cart/:cid → Vista del carrito de compras
+### Productos
+- `GET /api/products` Listado paginado
+- `GET /api/products/:pid` Detalle por ID
+- `POST /api/products` Solo `admin`
+- `PUT /api/products/:pid` Solo `admin`
+- `DELETE /api/products/:pid` Solo `admin`
 
-Desde el Home es posible agregar productos directamente al carrito mediante botones que consumen la API.
+### Carritos
+- `POST /api/carts` Crear carrito (solo `admin`)
+- `GET /api/carts/:cid` Ver carrito (owner o `admin`)
+- `POST /api/carts/:cid/product/:pid` Agregar producto (solo `user` owner)
+- `DELETE /api/carts/:cid/product/:pid` Eliminar producto (solo `user` owner)
+- `DELETE /api/carts/:cid` Vaciar carrito (solo `user` owner)
+- `POST /api/carts/:cid/purchase` Comprar carrito (owner o `admin`)
+
+## Seguridad y autorización
+- `authenticateCurrent`: valida JWT con estrategia `current`
+- `authorizeRoles`: controla acceso por rol (`user/admin`)
+- `authorizeCartOwner`: protege operaciones por propiedad del carrito (con bypass de `admin`)
+
+## Lógica de compra
+`POST /api/carts/:cid/purchase`:
+- Valida carrito y productos
+- Separa comprables/no comprables
+- Descuenta stock de forma atómica (`decreaseStockIfAvailable`)
+- Genera ticket solo si existe al menos un producto comprable
+- Soporta compra completa o parcial
+- Deja en carrito solo productos no comprados
+
+## Recuperación de contraseña
+- Se genera token y se guarda hasheado
+- El enlace expira en 1 hora
+- Se evita reutilizar la contraseña anterior
+- El email contiene botón/enlace para restablecer contraseña
+
+## Vistas (no funcionales)
+- `/` Home
+- `/realtimeproducts` Productos en tiempo real
+- `/cart/:cid` Vista de carrito
 
 ## Autor
-Fernando Medellin Cuevas
-Email: fermedellincuevas@gmail.com
-github: https://github.com/fer0o
+- Fernando Medellin Cuevas
+- Email: `fermedellincuevas@gmail.com`
+- GitHub: [fer0o](https://github.com/fer0o)
