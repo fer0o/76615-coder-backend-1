@@ -20,56 +20,86 @@ Incluye:
 ## Arquitectura aplicada
 Se implementó arquitectura por capas:
 
-`Routes -> Services -> Repositories -> DAO -> MongoDB`
+`App -> Routes -> Controllers -> Services -> Repositories -> DAO -> MongoDB`
 
 - `DTO`: para no exponer datos sensibles en `/api/sessions/current`
-- `Repository`: separa acceso a datos de lógica de negocio
+- `DAO`: capa de persistencia con CRUD simple (`create`, `getAll`, `getOne`, `update`, `delete`)
+- `Repository`: separa acceso a datos de lógica de negocio (paginación, carrito, stock, reset password)
 - `Service`: concentra lógica de negocio compleja (`purchase`, `forgot/reset password`)
 
 ## Estructura del proyecto (actual)
 ```text
 proyecto/
 ├── index.js
-├── src/
-│   ├── app.js
-│   ├── config/
-│   │   ├── config.js
-│   │   └── passport.config.js
-│   ├── dao/
-│   │   └── mongo/
-│   ├── dto/
-│   │   └── users/
-│   │       └── CurrentUserDTO.js
-│   ├── managersMongo/
-│   │   ├── ProductManagerMongo.js
-│   │   └── CartManagerMongo.js
-│   ├── middlewares/
-│   │   └── auth.middleware.js
-│   ├── models/
-│   │   ├── Product.model.js
-│   │   ├── Cart.model.js
-│   │   ├── User.model.js
-│   │   └── Ticket.model.js
-│   ├── repositories/
-│   │   ├── UserRepository.js
-│   │   ├── ProductRepository.js
-│   │   ├── CartRepository.js
-│   │   ├── TicketRepository.js
-│   │   └── index.js
-│   ├── routes/
-│   │   ├── products.routes.js
-│   │   ├── carts.routes.js
-│   │   ├── sessions.routes.js
-│   │   └── views.router.js
-│   ├── services/
-│   │   ├── CartService.js
-│   │   └── SessionService.js
-│   ├── utils/
-│   │   ├── hash.js
-│   │   ├── jwt.js
-│   │   └── mailer.js
-│   └── views/
-└── README.md
+├── README.md
+├── data/
+│   ├── carts.json
+│   └── products.json
+├── public/
+│   ├── css/
+│   │   └── styles.css
+│   └── js/
+│       ├── boton-home.js
+│       ├── cart.js
+│       └── realTime.js
+└── src/
+    ├── app.js
+    ├── config/
+    │   ├── config.js
+    │   └── passport.config.js
+    ├── controllers/
+    │   ├── CartController.js
+    │   ├── ProductController.js
+    │   └── SessionController.js
+    ├── dao/
+    │   └── mongo/
+    │       ├── CartMongoDAO.js
+    │       ├── ProductMongoDAO.js
+    │       ├── TicketMongoDAO.js
+    │       └── UserMongoDAO.js
+    ├── dto/
+    │   └── users/
+    │       └── CurrentUserDTO.js
+    ├── middlewares/
+    │   └── auth.middleware.js
+    ├── models/
+    │   ├── Cart.model.js
+    │   ├── Product.model.js
+    │   ├── Ticket.model.js
+    │   └── User.model.js
+    ├── repositories/
+    │   ├── CartRepository.js
+    │   ├── ProductRepository.js
+    │   ├── TicketRepository.js
+    │   ├── UserRepository.js
+    │   └── index.js
+    ├── routes/
+    │   ├── carts.routes.js
+    │   ├── index.js
+    │   ├── products.routes.js
+    │   ├── sessions.routes.js
+    │   └── views.router.js
+    ├── scripts/
+    │   └── testMongo.js
+    ├── services/
+    │   ├── CartService.js
+    │   ├── ProductService.js
+    │   └── SessionService.js
+    ├── utils/
+    │   ├── hash.js
+    │   ├── jwt.js
+    │   └── mailer.js
+    └── views/
+        ├── layouts/
+        │   └── main.hbs
+        ├── pages/
+        │   ├── cart.hbs
+        │   ├── home.hbs
+        │   └── realTimeProducts.hbs
+        └── partials/
+            ├── footer.hbs
+            ├── header.hbs
+            └── nav.hbs
 ```
 
 ## Instalación y ejecución

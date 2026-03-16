@@ -2,29 +2,27 @@ require("dotenv").config();
 const mongoose = require("mongoose");
 require("../models/Product.model");
 
-const CartManagerMongo = require("../managersMongo/CartManagerMongo");
+const { cartRepository } = require("../repositories");
 
 async function testMongo() {
   try {
     await mongoose.connect(process.env.MONGO_URL);
     console.log("🟢 Conectado a MongoDB (test)");
 
-    const cartManager = new CartManagerMongo();
-
     const cartId = "694b584da8eb58cff9b8df64"; // tu carrito real
 
     // 1️⃣ Carrito ANTES
-    const cartBefore = await cartManager.getCartById(cartId);
+    const cartBefore = await cartRepository.findByIdPopulated(cartId);
     console.log("🧺 Carrito ANTES de clearCart:");
     console.log(cartBefore);
 
     // 2️⃣ Ejecutar clearCart
-    const clearedCart = await cartManager.clearCart(cartId);
+    const clearedCart = await cartRepository.clear(cartId);
     console.log("🧹 Resultado de clearCart:");
     console.log(clearedCart);
 
     // 3️⃣ Carrito DESPUÉS
-    const cartAfter = await cartManager.getCartById(cartId);
+    const cartAfter = await cartRepository.findByIdPopulated(cartId);
     console.log("🧺 Carrito DESPUÉS de clearCart:");
     console.log(cartAfter);
 

@@ -7,12 +7,28 @@ class TicketRepository {
     return this.dao.create(ticketData, options);
   }
 
-  findByCode(code) {
-    return this.dao.findByCode(code);
+  getAll(filter = {}, options = {}) {
+    return this.dao.getAll(filter, options);
   }
 
-  findById(id) {
-    return this.dao.findById(id);
+  getOne(filterOrId, options = {}) {
+    return this.dao.getOne(filterOrId, options);
+  }
+
+  update(filterOrId, updateFields, options = {}) {
+    return this.dao.update(filterOrId, updateFields, options);
+  }
+
+  delete(filterOrId, options = {}) {
+    return this.dao.delete(filterOrId, options);
+  }
+
+  findByCode(code, options = {}) {
+    return this.dao.getOne({ code }, options);
+  }
+
+  findById(id, options = {}) {
+    return this.dao.getOne(id, options);
   }
 }
 

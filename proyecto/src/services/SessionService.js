@@ -177,11 +177,11 @@ class SessionService {
       await userRepository.setResetToken(
         user._id || user.id,
         hashedToken,
-        expiresAt
+        expiresAt,
       );
 
       const resetLink = `${process.env.RESET_PASSWORD_URL}?token=${encodeURIComponent(
-        rawToken
+        rawToken,
       )}`;
 
       try {
@@ -190,7 +190,10 @@ class SessionService {
           resetLink,
         });
       } catch (mailError) {
-        console.error("Error enviando mail de recuperación:", mailError.message);
+        console.error(
+          "Error enviando mail de recuperación:",
+          mailError.message,
+        );
       }
 
       return { statusCode: 200, body: genericResponse };
@@ -238,7 +241,10 @@ class SessionService {
         };
       }
 
-      const sameAsOldPassword = isValidPassword(cleanNewPassword, user.password);
+      const sameAsOldPassword = isValidPassword(
+        cleanNewPassword,
+        user.password,
+      );
       if (sameAsOldPassword) {
         return {
           statusCode: 400,
@@ -253,7 +259,7 @@ class SessionService {
 
       await userRepository.updatePasswordAndClearReset(
         user._id || user.id,
-        newHashedPassword
+        newHashedPassword,
       );
 
       return {

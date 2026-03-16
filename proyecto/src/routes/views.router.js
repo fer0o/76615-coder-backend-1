@@ -1,21 +1,29 @@
 const express = require("express");
 const router = express.Router();
 
-const ProductManagerMongo = require("../managersMongo/ProductManagerMongo");
-const CartManagerMongo = require("../managersMongo/CartManagerMongo");
+const productService = require("../services/ProductService");
+const cartService = require("../services/CartService");
 
-const productManager = new ProductManagerMongo();
-const cartManager = new CartManagerMongo();
+const parsePaginationQuery = (query) => ({
+  limit: query.limit ? Number(query.limit) : 10,
+  page: query.page ? Number(query.page) : 1,
+});
 
 // Vista Home
 router.get("/", async (req, res) => {
   try {
-    const result = await productManager.getProducts(req.query);
+    const result = await productService.getProducts(parsePaginationQuery(req.query));
+
+    if (result.statusCode !== 200) {
+      return res
+        .status(result.statusCode)
+        .send(result.body?.message || "Error cargando productos");
+    }
 
     res.render("pages/home", {
       title: "Lista de productos",
-      products: result.payload,
-      pagination: result.pagination,
+      products: result.body.payload,
+      pagination: result.body.pagination,
     });
   } catch (error) {
     console.error(error);
@@ -26,10 +34,16 @@ router.get("/", async (req, res) => {
 // Vista RealTime
 router.get("/realtimeproducts", async (req, res) => {
   try {
-    const result = await productManager.getProducts(req.query);
+    const result = await productService.getProducts(parsePaginationQuery(req.query));
+
+    if (result.statusCode !== 200) {
+      return res
+        .status(result.statusCode)
+        .send(result.body?.message || "Error cargando productos (realtime)");
+    }
 
     res.render("pages/realTimeProducts", {
-      products: result.payload,
+      products: result.body.payload,
     });
   } catch (error) {
     console.error(error);
@@ -42,11 +56,19 @@ router.get("/cart/:cid", async (req, res) => {
   try {
     const { cid } = req.params;
 
-    const cart = await cartManager.getCartById(cid);
+    const result = await cartService.getCartById(cid);
 
-    if (!cart) {
+    if (result.statusCode === 404) {
       return res.status(404).send("Carrito no encontrado");
     }
+
+    if (result.statusCode !== 200) {
+      return res
+        .status(result.statusCode)
+        .send(result.body?.message || "Error cargando carrito");
+    }
+
+    const cart = result.body.payload;
 
     res.render("pages/cart", {
       title: "Tu carrito",

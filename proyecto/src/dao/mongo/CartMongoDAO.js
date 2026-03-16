@@ -1,85 +1,148 @@
+const mongoose = require("mongoose");
 const CartModel = require("../../models/Cart.model");
 
+const { ObjectId } = mongoose.Types;
+//funcion para resolver el filtro por id o por objeto
+const resolveFilter = (filterOrId) => {
+  if (!filterOrId) {
+    return null;
+  }
+
+  if (typeof filterOrId === "string" || filterOrId instanceof ObjectId) {
+    return { _id: filterOrId };
+  }
+
+  if (typeof filterOrId === "object") {
+    return filterOrId;
+  }
+
+  return null;
+};
+//clase para el dao de carritos
 class CartMongoDAO {
-  async create(cartData = { products: [] }) {
+  async create(cartData = { products: [] }, options = {}) {
+    const { session } = options;
+
+    if (session) {
+      const [cart] = await CartModel.create([cartData], { session });
+      return cart.toObject();
+    }
+
     const cart = await CartModel.create(cartData);
     return cart.toObject();
   }
 
-  async findById(cid) {
-    return CartModel.findById(cid).lean();
-  }
+  async getAll(filter = {}, options = {}) {
+    const { skip, limit, sort, select, populate, session } = options;
 
-  async findByIdPopulated(cid, options = {}) {
-    const { session } = options;
-    const query = CartModel.findById(cid).populate("products.product");
+    let query = CartModel.find(filter);
+
+    if (select) {
+      query = query.select(select);
+    }
+
+    if (sort) {
+      query = query.sort(sort);
+    }
+
+    if (populate) {
+      query = query.populate(populate);
+    }
+
+    if (Number.isInteger(skip) && skip >= 0) {
+      query = query.skip(skip);
+    }
+
+    if (Number.isInteger(limit) && limit > 0) {
+      query = query.limit(limit);
+    }
 
     if (session) {
-      query.session(session);
+      query = query.session(session);
     }
 
     return query.lean();
   }
 
-  async addProduct(cid, pid) {
-    const cart = await CartModel.findById(cid);
-    if (!cart) return null;
+  async getOne(filterOrId, options = {}) {
+    const filter = resolveFilter(filterOrId);
 
-    const productIndex = cart.products.findIndex(
-      (p) => String(p.product) === String(pid),
-    );
-
-    if (productIndex === -1) {
-      cart.products.push({ product: pid, quantity: 1 });
-    } else {
-      cart.products[productIndex].quantity += 1;
+    if (!filter) {
+      return null;
     }
 
-    await cart.save();
-    return cart.toObject();
-  }
+    const { select, populate, session } = options;
+    let query = CartModel.findOne(filter);
 
-  async removeProduct(cid, pid) {
-    const cart = await CartModel.findById(cid);
-    if (!cart) return null;
+    if (select) {
+      query = query.select(select);
+    }
 
-    const initialLength = cart.products.length;
-    cart.products = cart.products.filter(
-      (p) => String(p.product) !== String(pid),
-    );
-
-    if (cart.products.length === initialLength) return null;
-
-    await cart.save();
-    return cart.toObject();
-  }
-
-  async clear(cid) {
-    const cart = await CartModel.findByIdAndUpdate(
-      cid,
-      { $set: { products: [] } },
-      { new: true },
-    ).lean();
-
-    return cart;
-  }
-
-  // clave para purchase: dejar en carrito solo los no comprados
-  async replaceProducts(cid, products, options = {}) {
-    const { session } = options;
-    const query = CartModel.findByIdAndUpdate(
-      cid,
-      { $set: { products } },
-      { new: true, runValidators: true },
-    );
+    if (populate) {
+      query = query.populate(populate);
+    }
 
     if (session) {
-      query.session(session);
+      query = query.session(session);
     }
 
-    const cart = await query.lean();
+    return query.lean();
+  }
+ //funcion para actualizar un carrito
+  async update(filterOrId, updateFields, options = {}) {
+    const filter = resolveFilter(filterOrId);
 
-    return cart;
+    if (!filter) {
+      return null;
+    }
+
+    const {
+      session,
+      runValidators = true,
+      upsert = false,
+      sort,
+      select,
+      populate,
+    } = options;
+
+    const queryOptions = { new: true, runValidators, upsert };
+
+    if (sort) {
+      queryOptions.sort = sort;
+    }
+
+    let query = CartModel.findOneAndUpdate(filter, updateFields, queryOptions);
+
+    if (select) {
+      query = query.select(select);
+    }
+
+    if (populate) {
+      query = query.populate(populate);
+    }
+
+    if (session) {
+      query = query.session(session);
+    }
+
+    return query.lean();
+  }
+  
+  async delete(filterOrId, options = {}) {
+    const filter = resolveFilter(filterOrId);
+
+    if (!filter) {
+      return null;
+    }
+
+    const { session } = options;
+    let query = CartModel.findOneAndDelete(filter);
+
+    if (session) {
+      query = query.session(session);
+    }
+
+    return query.lean();
   }
 }
 

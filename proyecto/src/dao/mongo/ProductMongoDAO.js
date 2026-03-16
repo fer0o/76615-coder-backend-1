@@ -1,88 +1,145 @@
+const mongoose = require("mongoose");
 const ProductModel = require("../../models/Product.model");
 
+const { ObjectId } = mongoose.Types;
+
+const resolveFilter = (filterOrId) => {
+  if (!filterOrId) {
+    return null;
+  }
+
+  if (typeof filterOrId === "string" || filterOrId instanceof ObjectId) {
+    return { _id: filterOrId };
+  }
+
+  if (typeof filterOrId === "object") {
+    return filterOrId;
+  }
+
+  return null;
+};
+
 class ProductMongoDAO {
-  async findAllPaginated({ limit = 10, page = 1 } = {}) {
-    const parsedLimit = Number(limit);
-    const parsedPage = Number(page);
+  async create(productData, options = {}) {
+    const { session } = options;
 
-    const safeLimit =
-      Number.isInteger(parsedLimit) && parsedLimit > 0 ? parsedLimit : 10;
-    const safePage =
-      Number.isInteger(parsedPage) && parsedPage > 0 ? parsedPage : 1;
+    if (session) {
+      const [product] = await ProductModel.create([productData], { session });
+      return product.toObject();
+    }
 
-    const skip = (safePage - 1) * safeLimit;
-    const products = await ProductModel.find()
-      .skip(skip)
-      .limit(safeLimit)
-      .lean();
-    const totalProducts = await ProductModel.countDocuments();
-    const totalPages = Math.max(1, Math.ceil(totalProducts / safeLimit));
-
-    return {
-      payload: products,
-      pagination: {
-        totalProducts,
-        totalPages,
-        page: safePage,
-        limit: safeLimit,
-        hasPrevPage: safePage > 1,
-        hasNextPage: safePage < totalPages,
-      },
-    };
-  }
-
-  async findById(pid) {
-    return ProductModel.findById(pid).lean();
-  }
-
-  async create(productData) {
     const product = await ProductModel.create(productData);
     return product.toObject();
   }
 
-  async updateById(pid, updateFields) {
-    return ProductModel.findByIdAndUpdate(pid, updateFields, {
-      new: true,
-      runValidators: true,
-    }).lean();
-  }
+  async getAll(filter = {}, options = {}) {
+    const { skip, limit, sort, select, populate, session } = options;
 
-  async deleteById(pid) {
-    return ProductModel.findByIdAndDelete(pid).lean();
-  }
+    let query = ProductModel.find(filter);
 
-  // para compra: actualizar stock exacto
-  async updateStockById(pid, newStock, options = {}) {
-    const { session } = options;
+    if (select) {
+      query = query.select(select);
+    }
 
-    const query = ProductModel.findByIdAndUpdate(
-      pid,
-      { $set: { stock: newStock } },
-      { new: true, runValidators: true },
-    );
+    if (sort) {
+      query = query.sort(sort);
+    }
+
+    if (populate) {
+      query = query.populate(populate);
+    }
+
+    if (Number.isInteger(skip) && skip >= 0) {
+      query = query.skip(skip);
+    }
+
+    if (Number.isInteger(limit) && limit > 0) {
+      query = query.limit(limit);
+    }
 
     if (session) {
-      query.session(session);
+      query = query.session(session);
     }
 
     return query.lean();
   }
 
-  async decreaseStockIfAvailable(pid, qty, options = {}) {
-    const { session } = options;
+  async getOne(filterOrId, options = {}) {
+    const filter = resolveFilter(filterOrId);
 
-    if (!Number.isInteger(qty) || qty <= 0) {
+    if (!filter) {
       return null;
     }
 
-    const query = ProductModel.findOneAndUpdate(
-      { _id: pid, stock: { $gte: qty } },
-      { $inc: { stock: -qty } },
-      { new: true },
-    );
+    const { select, populate, session } = options;
+    let query = ProductModel.findOne(filter);
+
+    if (select) {
+      query = query.select(select);
+    }
+
+    if (populate) {
+      query = query.populate(populate);
+    }
 
     if (session) {
-      query.session(session);
+      query = query.session(session);
+    }
+
+    return query.lean();
+  }
+
+  async update(filterOrId, updateFields, options = {}) {
+    const filter = resolveFilter(filterOrId);
+
+    if (!filter) {
+      return null;
+    }
+
+    const {
+      session,
+      runValidators = true,
+      upsert = false,
+      sort,
+      select,
+      populate,
+    } = options;
+
+    const queryOptions = { new: true, runValidators, upsert };
+
+    if (sort) {
+      queryOptions.sort = sort;
+    }
+
+    let query = ProductModel.findOneAndUpdate(filter, updateFields, queryOptions);
+
+    if (select) {
+      query = query.select(select);
+    }
+
+    if (populate) {
+      query = query.populate(populate);
+    }
+
+    if (session) {
+      query = query.session(session);
+    }
+
+    return query.lean();
+  }
+
+  async delete(filterOrId, options = {}) {
+    const filter = resolveFilter(filterOrId);
+
+    if (!filter) {
+      return null;
+    }
+
+    const { session } = options;
+    let query = ProductModel.findOneAndDelete(filter);
+
+    if (session) {
+      query = query.session(session);
     }
 
     return query.lean();
