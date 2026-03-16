@@ -9,6 +9,170 @@ const generateTicketCode = () =>
   `TKT-${Date.now()}-${Math.random().toString(36).slice(2, 8).toUpperCase()}`;
 
 class CartService {
+  //Service para crear un carrito
+  async createCart() {
+    try {
+      const newCart = await cartRepository.create({ products: [] });
+
+      return {
+        statusCode: 201,
+        body: {
+          status: "success",
+          message: "Carrito creado exitosamente",
+          cart: newCart,
+        },
+      };
+    } catch (error) {
+      console.error("Error en CartService.createCart:", error.message);
+      return {
+        statusCode: 500,
+        body: {
+          status: "error",
+          message: "Error interno del servidor",
+        },
+      };
+    }
+  }
+
+  //Service para obtener un carrito por su ID
+  async getCartById(cid) {
+    try {
+      const cart = await cartRepository.findByIdPopulated(cid);
+
+      if (!cart) {
+        return {
+          statusCode: 404,
+          body: {
+            status: "error",
+            message: "Carrito no encontrado",
+          },
+        };
+      }
+
+      return {
+        statusCode: 200,
+        body: {
+          status: "success",
+          payload: cart,
+        },
+      };
+    } catch (error) {
+      console.error("Error en CartService.getCartById:", error.message);
+      return {
+        statusCode: 500,
+        body: {
+          status: "error",
+          message: "Error interno del servidor",
+        },
+      };
+    }
+  }
+
+  //Service para agregar un producto al carrito
+  async addProductToCart(cid, pid) {
+    try {
+      const updatedCart = await cartRepository.addProduct(cid, pid);
+
+      if (!updatedCart) {
+        return {
+          statusCode: 404,
+          body: {
+            status: "error",
+            message: "Carrito no encontrado",
+          },
+        };
+      }
+
+      return {
+        statusCode: 200,
+        body: {
+          status: "success",
+          message: "Producto agregado al carrito",
+          cart: updatedCart,
+        },
+      };
+    } catch (error) {
+      console.error("Error en CartService.addProductToCart:", error.message);
+      return {
+        statusCode: 500,
+        body: {
+          status: "error",
+          message: "Error al agregar producto al carrito",
+          details: error.message,
+        },
+      };
+    }
+  }
+  //Service para eliminar un producto del carrito
+  async removeProductFromCart(cid, pid) {
+    try {
+      const updatedCart = await cartRepository.removeProduct(cid, pid);
+
+      if (!updatedCart) {
+        return {
+          statusCode: 404,
+          body: {
+            status: "error",
+            message: "Carrito o producto no encontrado",
+          },
+        };
+      }
+
+      return {
+        statusCode: 200,
+        body: {
+          status: "success",
+          message: "Producto eliminado del carrito",
+          cart: updatedCart,
+        },
+      };
+    } catch (error) {
+      console.error("Error en CartService.removeProductFromCart:", error.message);
+      return {
+        statusCode: 500,
+        body: {
+          status: "error",
+          message: "Error al eliminar el producto del carrito",
+        },
+      };
+    }
+  }
+//Service para vaciar un carrito
+  async clearCart(cid) {
+    try {
+      const clearedCart = await cartRepository.clear(cid);
+
+      if (!clearedCart) {
+        return {
+          statusCode: 404,
+          body: {
+            status: "error",
+            message: "Carrito no encontrado",
+          },
+        };
+      }
+
+      return {
+        statusCode: 200,
+        body: {
+          status: "success",
+          message: "Carrito vaciado correctamente",
+          cart: clearedCart,
+        },
+      };
+    } catch (error) {
+      console.error("Error en CartService.clearCart:", error.message);
+      return {
+        statusCode: 500,
+        body: {
+          status: "error",
+          message: "Error al vaciar el carrito",
+        },
+      };
+    }
+  }
+
+  //Service para comprar un carrito
   async purchaseCart({ cid, purchaserEmail }) {
     let session;
 
