@@ -1,16 +1,8 @@
 const express = require("express");
 const router = express.Router();
-// const ProductManager = require('../managers/ProductManager');
-//ahora usamos el manager de MongoDB
-const ProductManagerMongo = require("../managersMongo/ProductManagerMongo");
 const productController = require("../controllers/ProductController");
 
 const {authenticateCurrent, authorizeRoles} = require("../middlewares/auth.middleware")
-
-//instancia del manager
-// const productManager = new ProductManager();
-//ahora usamos el manager de MongoDB
-const productManager = new ProductManagerMongo();
 
 //Ruta get para obtener todos los productos no hay necesidad de cambios p
 router.get("/", productController.getProducts);

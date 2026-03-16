@@ -1,4 +1,5 @@
 const ProductManagerMongo = require("../managersMongo/ProductManagerMongo");
+const productService = require("../services/ProductService");
 
 const productManager = new ProductManagerMongo();
 
@@ -8,12 +9,12 @@ class ProductController {
     try {
       const { limit, page } = req.query;
 
-      const result = await productManager.getProducts({
+      const result = await productService.getProducts({
         limit: limit ? Number(limit) : 10,
         page: page ? Number(page) : 1,
       });
 
-      return res.status(200).json(result);
+      return res.status(result.statusCode).json(result.body);
     } catch (error) {
       console.error("Error al obtener los productos:", error);
       return res.status(500).json({ error: "Error al obtener los productos" });
@@ -23,13 +24,8 @@ class ProductController {
   async getProductById(req, res) {
     try {
       const pid = req.params.pid;
-      const product = await productManager.getProductById(pid);
-
-      if (!product) {
-        return res.status(404).json({ error: "Producto no encontrado" });
-      }
-
-      return res.status(200).json(product);
+      const result = await productService.getProductById(pid);
+      return res.status(result.statusCode).json(result.body);
     } catch (error) {
       console.error("Error al obtener el producto por ID:", error);
       return res.status(500).json({ error: "Error al obtener el producto por ID" });
@@ -77,9 +73,8 @@ class ProductController {
         });
       }
 
-      const result = await productManager.addProduct(productData);
-
-      return res.status(201).json(result);
+      const result = await productService.createProduct(productData);
+      return res.status(result.statusCode).json(result.body);
     } catch (error) {
       console.error("Error en POST /api/products:", error.message);
       return res
@@ -99,13 +94,8 @@ class ProductController {
         });
       }
 
-      const result = await productManager.updateProduct(pid, updateFields);
-
-      if (!result) {
-        return res.status(404).json({ error: "Producto no encontrado" });
-      }
-
-      return res.status(200).json(result);
+      const result = await productService.updateProduct(pid, updateFields);
+      return res.status(result.statusCode).json(result.body);
     } catch (error) {
       console.error("Error en PUT /api/products/:pid:", error.message);
       return res.status(500).json({
@@ -118,13 +108,8 @@ class ProductController {
   async deleteProduct(req, res) {
     try {
       const pid = req.params.pid;
-      const result = await productManager.deleteProduct(pid);
-
-      if (!result) {
-        return res.status(404).json({ error: "Producto no encontrado" });
-      }
-
-      return res.status(200).json(result);
+      const result = await productService.deleteProduct(pid);
+      return res.status(result.statusCode).json(result.body);
     } catch (error) {
       console.error("Error en DELETE /api/products/:pid:", error.message);
       return res.status(500).json({
