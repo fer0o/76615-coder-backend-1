@@ -20,10 +20,11 @@ Incluye:
 ## Arquitectura aplicada
 Se implementó arquitectura por capas:
 
-`Routes -> Services -> Repositories -> DAO -> MongoDB`
+`App -> Routes -> Controllers -> Services -> Repositories -> DAO -> MongoDB`
 
 - `DTO`: para no exponer datos sensibles en `/api/sessions/current`
-- `Repository`: separa acceso a datos de lógica de negocio
+- `DAO`: capa de persistencia con CRUD simple (`create`, `getAll`, `getOne`, `update`, `delete`)
+- `Repository`: separa acceso a datos de lógica de negocio (paginación, carrito, stock, reset password)
 - `Service`: concentra lógica de negocio compleja (`purchase`, `forgot/reset password`)
 
 ## Estructura del proyecto (actual)
@@ -37,12 +38,13 @@ proyecto/
 │   │   └── passport.config.js
 │   ├── dao/
 │   │   └── mongo/
+│   ├── controllers/
+│   │   ├── ProductController.js
+│   │   ├── CartController.js
+│   │   └── SessionController.js
 │   ├── dto/
 │   │   └── users/
 │   │       └── CurrentUserDTO.js
-│   ├── managersMongo/
-│   │   ├── ProductManagerMongo.js
-│   │   └── CartManagerMongo.js
 │   ├── middlewares/
 │   │   └── auth.middleware.js
 │   ├── models/
@@ -62,8 +64,11 @@ proyecto/
 │   │   ├── sessions.routes.js
 │   │   └── views.router.js
 │   ├── services/
+│   │   ├── ProductService.js
 │   │   ├── CartService.js
 │   │   └── SessionService.js
+│   ├── scripts/
+│   │   └── testMongo.js
 │   ├── utils/
 │   │   ├── hash.js
 │   │   ├── jwt.js
