@@ -2,7 +2,10 @@ const express = require("express");
 const router = express.Router();
 const productController = require("../controllers/ProductController");
 
-const {authenticateCurrent, authorizeRoles} = require("../middlewares/auth.middleware")
+const {
+  authenticateCurrent,
+  authorizeRoles,
+} = require("../middlewares/auth.middleware");
 
 //Ruta get para obtener todos los productos no hay necesidad de cambios p
 router.get("/", productController.getProducts);

@@ -24,7 +24,7 @@ class ProductService {
       };
     }
   }
-//Service para obtener un producto por su ID
+  //Service para obtener un producto por su ID
   async getProductById(pid) {
     try {
       const product = await productRepository.findById(pid);
@@ -57,34 +57,37 @@ class ProductService {
       };
     }
   }
-//Service para crear un producto
+  //Service para crear un producto
   async createProduct(productData) {
-  try {
-    const newProduct = await productRepository.create(productData);
+    try {
+      const newProduct = await productRepository.create(productData);
 
-    return {
-      statusCode: 201,
-      body: {
-        status: "success",
-        message: "Producto agregado exitosamente",
-        product: newProduct,
-      },
-    };
-  } catch (error) {
-    console.error("Error en ProductService.createProduct:", error.message);
-    return {
-      statusCode: 500,
-      body: {
-        status: "error",
-        message: "Error interno del servidor",
-      },
-    };
+      return {
+        statusCode: 201,
+        body: {
+          status: "success",
+          message: "Producto agregado exitosamente",
+          product: newProduct,
+        },
+      };
+    } catch (error) {
+      console.error("Error en ProductService.createProduct:", error.message);
+      return {
+        statusCode: 500,
+        body: {
+          status: "error",
+          message: "Error interno del servidor",
+        },
+      };
+    }
   }
-  }
-//Service para actualizar un producto
+  //Service para actualizar un producto
   async updateProduct(pid, updateFields) {
     try {
-      const updatedProduct = await productRepository.updateById(pid, updateFields);
+      const updatedProduct = await productRepository.updateById(
+        pid,
+        updateFields,
+      );
 
       if (!updatedProduct) {
         return {
@@ -115,7 +118,7 @@ class ProductService {
       };
     }
   }
-//Service para eliminar un producto
+  //Service para eliminar un producto
   async deleteProduct(pid) {
     try {
       const deletedProduct = await productRepository.deleteById(pid);
@@ -148,9 +151,6 @@ class ProductService {
       };
     }
   }
-
 }
-
-
 
 module.exports = new ProductService();

@@ -127,7 +127,10 @@ class CartService {
         },
       };
     } catch (error) {
-      console.error("Error en CartService.removeProductFromCart:", error.message);
+      console.error(
+        "Error en CartService.removeProductFromCart:",
+        error.message,
+      );
       return {
         statusCode: 500,
         body: {
@@ -137,7 +140,7 @@ class CartService {
       };
     }
   }
-//Service para vaciar un carrito
+  //Service para vaciar un carrito
   async clearCart(cid) {
     try {
       const clearedCart = await cartRepository.clear(cid);

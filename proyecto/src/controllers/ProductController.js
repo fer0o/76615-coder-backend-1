@@ -1,6 +1,6 @@
 const productService = require("../services/ProductService");
 
-//handler para obtener un producto por su ID 
+//handler para obtener un producto por su ID
 class ProductController {
   async getProducts(req, res) {
     try {
@@ -17,7 +17,7 @@ class ProductController {
       return res.status(500).json({ error: "Error al obtener los productos" });
     }
   }
-  //handler para obtener un producto por su ID 
+  //handler para obtener un producto por su ID
   async getProductById(req, res) {
     try {
       const pid = req.params.pid;
@@ -25,10 +25,12 @@ class ProductController {
       return res.status(result.statusCode).json(result.body);
     } catch (error) {
       console.error("Error al obtener el producto por ID:", error);
-      return res.status(500).json({ error: "Error al obtener el producto por ID" });
+      return res
+        .status(500)
+        .json({ error: "Error al obtener el producto por ID" });
     }
   }
-  //handler para crear un producto 
+  //handler para crear un producto
   async createProduct(req, res) {
     //body esperado para este endpoint
     /*
@@ -61,7 +63,8 @@ class ProductController {
       ];
 
       const missingFields = requiredFields.filter(
-        (field) => productData[field] === undefined || productData[field] === null,
+        (field) =>
+          productData[field] === undefined || productData[field] === null,
       );
 
       if (missingFields.length > 0) {
@@ -79,7 +82,7 @@ class ProductController {
         .json({ error: "Error interno del servidor", details: error.message });
     }
   }
-  //handler para actualizar un producto 
+  //handler para actualizar un producto
   async updateProduct(req, res) {
     try {
       const pid = req.params.pid;
@@ -101,7 +104,7 @@ class ProductController {
       });
     }
   }
-  //handler para eliminar un producto 
+  //handler para eliminar un producto
   async deleteProduct(req, res) {
     try {
       const pid = req.params.pid;
