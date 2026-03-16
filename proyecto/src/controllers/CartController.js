@@ -1,7 +1,6 @@
 const cartService = require("../services/CartService");
 
 class CartController {
-  //Controller para crear un carrito
   async createCart(req, res) {
     try {
       const result = await cartService.createCart();
@@ -14,7 +13,7 @@ class CartController {
       });
     }
   }
-//Controller para obtener un carrito por su ID
+
   async getCartById(req, res) {
     try {
       const { cid } = req.params;
@@ -28,7 +27,7 @@ class CartController {
       });
     }
   }
-//Controller para agregar un producto al carrito
+
   async addProductToCart(req, res) {
     try {
       const { cid, pid } = req.params;
@@ -42,7 +41,7 @@ class CartController {
       });
     }
   }
-//Controller para eliminar un producto del carrito
+
   async removeProductFromCart(req, res) {
     try {
       const { cid, pid } = req.params;
@@ -56,7 +55,7 @@ class CartController {
       });
     }
   }
-//Controller para vaciar un carrito
+
   async clearCart(req, res) {
     try {
       const { cid } = req.params;
@@ -70,7 +69,6 @@ class CartController {
       });
     }
   }
-//Controller para comprar un carrito
   async purchaseCart(req, res) {
     try {
       const { cid } = req.params;

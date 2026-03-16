@@ -7,7 +7,7 @@ const {
   authorizeCartOwner,
 } = require("../middlewares/auth.middleware");
 
-//Ruta para crear un nuevo carrito
+// Crea un carrito nuevo (solo admin).
 router.post(
   "/",
   authenticateCurrent,
@@ -15,7 +15,7 @@ router.post(
   cartController.createCart,
 );
 
-//Ruta para obtener un carrito por su ID admin y user
+// Obtiene un carrito por ID (admin o dueño del carrito).
 router.get(
   "/:cid",
   authenticateCurrent,
@@ -23,7 +23,8 @@ router.get(
   authorizeCartOwner,
   cartController.getCartById,
 );
-//ruta para agregar un producto (solo user)
+
+// Agrega un producto al carrito del usuario autenticado.
 router.post(
   "/:cid/product/:pid",
   authenticateCurrent,
@@ -32,7 +33,7 @@ router.post(
   cartController.addProductToCart,
 );
 
-// DELETE: eliminar un producto específico del carrito (solo user)
+// Elimina un producto específico del carrito.
 router.delete(
   "/:cid/product/:pid",
   authenticateCurrent,
@@ -41,7 +42,7 @@ router.delete(
   cartController.removeProductFromCart,
 );
 
-// DELETE: vaciar completamente un carrito (solo user)
+// Vacía completamente un carrito.
 router.delete(
   "/:cid",
   authenticateCurrent,
@@ -49,7 +50,8 @@ router.delete(
   authorizeCartOwner,
   cartController.clearCart,
 );
-//Ruta para comprar un carrito (solo user)
+
+// Ejecuta la compra del carrito (user o admin).
 router.post(
   "/:cid/purchase",
   authenticateCurrent,
