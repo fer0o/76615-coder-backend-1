@@ -31,50 +31,75 @@ Se implementó arquitectura por capas:
 ```text
 proyecto/
 ├── index.js
-├── src/
-│   ├── app.js
-│   ├── config/
-│   │   ├── config.js
-│   │   └── passport.config.js
-│   ├── dao/
-│   │   └── mongo/
-│   ├── controllers/
-│   │   ├── ProductController.js
-│   │   ├── CartController.js
-│   │   └── SessionController.js
-│   ├── dto/
-│   │   └── users/
-│   │       └── CurrentUserDTO.js
-│   ├── middlewares/
-│   │   └── auth.middleware.js
-│   ├── models/
-│   │   ├── Product.model.js
-│   │   ├── Cart.model.js
-│   │   ├── User.model.js
-│   │   └── Ticket.model.js
-│   ├── repositories/
-│   │   ├── UserRepository.js
-│   │   ├── ProductRepository.js
-│   │   ├── CartRepository.js
-│   │   ├── TicketRepository.js
-│   │   └── index.js
-│   ├── routes/
-│   │   ├── products.routes.js
-│   │   ├── carts.routes.js
-│   │   ├── sessions.routes.js
-│   │   └── views.router.js
-│   ├── services/
-│   │   ├── ProductService.js
-│   │   ├── CartService.js
-│   │   └── SessionService.js
-│   ├── scripts/
-│   │   └── testMongo.js
-│   ├── utils/
-│   │   ├── hash.js
-│   │   ├── jwt.js
-│   │   └── mailer.js
-│   └── views/
-└── README.md
+├── README.md
+├── data/
+│   ├── carts.json
+│   └── products.json
+├── public/
+│   ├── css/
+│   │   └── styles.css
+│   └── js/
+│       ├── boton-home.js
+│       ├── cart.js
+│       └── realTime.js
+└── src/
+    ├── app.js
+    ├── config/
+    │   ├── config.js
+    │   └── passport.config.js
+    ├── controllers/
+    │   ├── CartController.js
+    │   ├── ProductController.js
+    │   └── SessionController.js
+    ├── dao/
+    │   └── mongo/
+    │       ├── CartMongoDAO.js
+    │       ├── ProductMongoDAO.js
+    │       ├── TicketMongoDAO.js
+    │       └── UserMongoDAO.js
+    ├── dto/
+    │   └── users/
+    │       └── CurrentUserDTO.js
+    ├── middlewares/
+    │   └── auth.middleware.js
+    ├── models/
+    │   ├── Cart.model.js
+    │   ├── Product.model.js
+    │   ├── Ticket.model.js
+    │   └── User.model.js
+    ├── repositories/
+    │   ├── CartRepository.js
+    │   ├── ProductRepository.js
+    │   ├── TicketRepository.js
+    │   ├── UserRepository.js
+    │   └── index.js
+    ├── routes/
+    │   ├── carts.routes.js
+    │   ├── index.js
+    │   ├── products.routes.js
+    │   ├── sessions.routes.js
+    │   └── views.router.js
+    ├── scripts/
+    │   └── testMongo.js
+    ├── services/
+    │   ├── CartService.js
+    │   ├── ProductService.js
+    │   └── SessionService.js
+    ├── utils/
+    │   ├── hash.js
+    │   ├── jwt.js
+    │   └── mailer.js
+    └── views/
+        ├── layouts/
+        │   └── main.hbs
+        ├── pages/
+        │   ├── cart.hbs
+        │   ├── home.hbs
+        │   └── realTimeProducts.hbs
+        └── partials/
+            ├── footer.hbs
+            ├── header.hbs
+            └── nav.hbs
 ```
 
 ## Instalación y ejecución

@@ -13,9 +13,7 @@ mongoose
 const app = require("./src/app");
 const http = require("http");
 const { Server } = require("socket.io");
-
-const ProductManagerMongo = require("./src/managersMongo/ProductManagerMongo");
-const productManager = new ProductManagerMongo();
+const { productRepository } = require("./src/repositories");
 
 const server = http.createServer(app);
 const io = new Server(server);
@@ -25,13 +23,13 @@ io.on("connection", async (socket) => {
   console.log("Cliente conectado (Realtime)");
 
   // 🔹 Enviar productos actuales
-  const products = await productManager.getProducts();
+  const products = await productRepository.findAllPaginated();
   socket.emit("updateProducts", products);
 
   // 🔹 CREAR PRODUCTO
   socket.on("crearProducto", async (data) => {
     try {
-      await productManager.addProduct({
+      await productRepository.create({
         team: data.team,
         league: "N/A",
         country: "N/A",
@@ -44,7 +42,7 @@ io.on("connection", async (socket) => {
         sizes: [],
       });
 
-      const updatedProducts = await productManager.getProducts();
+      const updatedProducts = await productRepository.findAllPaginated();
       io.emit("updateProducts", updatedProducts);
     } catch (error) {
       console.error("Error creando producto realtime:", error.message);
@@ -54,9 +52,9 @@ io.on("connection", async (socket) => {
   // 🔹 ELIMINAR PRODUCTO
   socket.on("eliminarProducto", async (productId) => {
     try {
-      await productManager.deleteProduct(productId);
+      await productRepository.deleteById(productId);
 
-      const updatedProducts = await productManager.getProducts();
+      const updatedProducts = await productRepository.findAllPaginated();
       io.emit("updateProducts", updatedProducts);
     } catch (error) {
       console.error("Error eliminando producto realtime:", error.message);
