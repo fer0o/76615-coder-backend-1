@@ -1,7 +1,4 @@
-const ProductManagerMongo = require("../managersMongo/ProductManagerMongo");
 const productService = require("../services/ProductService");
-
-const productManager = new ProductManagerMongo();
 
 //handler para obtener un producto por su ID 
 class ProductController {
